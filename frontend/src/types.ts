@@ -60,3 +60,10 @@ export interface ProbeResponse {
   n_layers: number
   results: ProbeConceptResult[]
 }
+
+export interface TrajectoryResponse {
+  tokens: string[]
+  layer_labels: string[]
+  explained_variance: number[]
+  trajectories: number[][][]
+}

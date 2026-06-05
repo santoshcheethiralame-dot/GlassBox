@@ -8,7 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from interp import run_forward, run_patching
 from model import MODEL_NAME, get_model
 from probing import list_concepts, run_probes
-from schemas import ForwardRequest, PatchRequest, ProbeRequest
+from schemas import ForwardRequest, PatchRequest, ProbeRequest, TrajectoryRequest
+from trajectory import run_trajectory
 
 
 @asynccontextmanager
@@ -57,3 +58,8 @@ def probe_concepts() -> list:
 @app.post("/probe")
 def probe(req: ProbeRequest) -> dict:
     return run_probes(req.concepts)
+
+
+@app.post("/trajectory")
+def trajectory(req: TrajectoryRequest) -> dict:
+    return run_trajectory(req.prompt)

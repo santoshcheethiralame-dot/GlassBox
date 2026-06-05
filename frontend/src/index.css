@@ -402,3 +402,16 @@ body {
   display: inline-block;
   flex: none;
 }
+
+.traj-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  cursor: default;
+}

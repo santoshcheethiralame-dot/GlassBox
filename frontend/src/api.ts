@@ -1,4 +1,11 @@
-import type { ConceptInfo, ForwardResponse, HealthResponse, PatchResponse, ProbeResponse } from './types'
+import type {
+  ConceptInfo,
+  ForwardResponse,
+  HealthResponse,
+  PatchResponse,
+  ProbeResponse,
+  TrajectoryResponse,
+} from './types'
 
 const BASE = '/api'
 
@@ -41,6 +48,10 @@ export async function getConcepts(): Promise<ConceptInfo[]> {
 
 export function runProbes(concepts: string[]): Promise<ProbeResponse> {
   return postJSON<ProbeResponse>('/probe', { concepts })
+}
+
+export function runTrajectory(prompt: string): Promise<TrajectoryResponse> {
+  return postJSON<TrajectoryResponse>('/trajectory', { prompt })
 }
 
 export async function getHealth(): Promise<HealthResponse> {
