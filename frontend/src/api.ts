@@ -11,36 +11,48 @@ import type {
 
 const BASE = '/api'
 
+async function rfetch(url: string, opts?: RequestInit): Promise<Response> {
+  let last: unknown
+  for (let a = 0; a < 4; a++) {
+    try {
+      return await fetch(url, opts)
+    } catch (e) {
+      last = e
+      await new Promise((r) => setTimeout(r, 350))
+    }
+  }
+  throw last instanceof Error ? last : new Error('network error')
+}
+
+async function detailOf(res: Response): Promise<string> {
+  return res
+    .json()
+    .then((j) => j.detail ?? res.statusText)
+    .catch(() => res.statusText)
+}
+
 async function postJSON<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await rfetch(`${BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-  if (!res.ok) {
-    const detail = await res
-      .json()
-      .then((j) => j.detail ?? res.statusText)
-      .catch(() => res.statusText)
-    throw new Error(detail)
-  }
+  if (!res.ok) throw new Error(await detailOf(res))
   return res.json() as Promise<T>
 }
 
 async function getJSON<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`)
-  if (!res.ok) {
-    const detail = await res
-      .json()
-      .then((j) => j.detail ?? res.statusText)
-      .catch(() => res.statusText)
-    throw new Error(detail)
-  }
+  const res = await rfetch(`${BASE}${path}`)
+  if (!res.ok) throw new Error(await detailOf(res))
   return res.json() as Promise<T>
 }
 
 export function runForward(prompt: string, topK = 10): Promise<ForwardResponse> {
   return postJSON<ForwardResponse>('/forward', { prompt, top_k: topK })
+}
+
+export function runTrajectory(prompt: string): Promise<TrajectoryResponse> {
+  return postJSON<TrajectoryResponse>('/trajectory', { prompt })
 }
 
 export interface PatchInput {
@@ -60,10 +72,6 @@ export function getConcepts(): Promise<ConceptInfo[]> {
 
 export function runProbes(concepts: string[]): Promise<ProbeResponse> {
   return postJSON<ProbeResponse>('/probe', { concepts })
-}
-
-export function runTrajectory(prompt: string): Promise<TrajectoryResponse> {
-  return postJSON<TrajectoryResponse>('/trajectory', { prompt })
 }
 
 export function scanLayer(layer: number): Promise<NeuronScanResponse> {

@@ -1,32 +1,35 @@
 import { useEffect, useState } from 'react'
-import { PromptBar } from './components/PromptBar'
 import { Tokens } from './components/Tokens'
-import { Predictions } from './components/Predictions'
 import { AttentionView } from './components/AttentionView'
-import { PatchingView } from './components/PatchingView'
+import { ResidualView } from './components/ResidualView'
 import { ProbeView } from './components/ProbeView'
-import { TrajectoryView } from './components/TrajectoryView'
+import { PatchingView } from './components/PatchingView'
 import { NeuronView } from './components/NeuronView'
-import { getHealth, runForward } from './api'
-import type { ForwardResponse, HealthResponse } from './types'
+import { getHealth, runForward, runTrajectory } from './api'
+import type { ForwardResponse, HealthResponse, TrajectoryResponse } from './types'
+
+const DEFAULT_PROMPT = 'When Mary and John went to the store, John gave a drink to'
 
 export default function App() {
   const [health, setHealth] = useState<HealthResponse | null>(null)
-  const [data, setData] = useState<ForwardResponse | null>(null)
+  const [prompt, setPrompt] = useState(DEFAULT_PROMPT)
+  const [fwd, setFwd] = useState<ForwardResponse | null>(null)
+  const [traj, setTraj] = useState<TrajectoryResponse | null>(null)
+  const [focus, setFocus] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    getHealth()
-      .then(setHealth)
-      .catch(() => setHealth(null))
-  }, [])
-
-  const run = async (prompt: string) => {
+  const run = async (p: string) => {
+    const q = p.trim()
+    if (!q) return
     setLoading(true)
     setError(null)
+    setFocus(null)
+    setTraj(null)
     try {
-      setData(await runForward(prompt))
+      const [f, t] = await Promise.all([runForward(q), runTrajectory(q)])
+      setFwd(f)
+      setTraj(t)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -34,43 +37,132 @@ export default function App() {
     }
   }
 
+  useEffect(() => {
+    getHealth()
+      .then(setHealth)
+      .catch(() => setHealth(null))
+    run(DEFAULT_PROMPT)
+  }, [])
+
   return (
-    <div className="app">
-      <header className="header">
-        <h1>GlassBox</h1>
-        <span className="subtitle">peering inside GPT-2 small</span>
-        {health ? (
-          <span className="badge">
-            {health.model} · {health.n_layers}L × {health.n_heads}H · d{health.d_model}
+    <div className="shell">
+      <header className="masthead">
+        <div className="brand">
+          <span className="mark">
+            <i />
+            <i />
+            <i />
+            <i />
           </span>
-        ) : (
-          <span className="badge offline">backend offline</span>
-        )}
+          <span className="nm">GLASSBOX</span>
+        </div>
+        <div className="prompt-zone">
+          <span className="lbl tag">prompt /</span>
+          <input
+            className="prompt-in"
+            value={prompt}
+            spellCheck={false}
+            onChange={(e) => setPrompt(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') run(prompt)
+            }}
+          />
+        </div>
+        <button className="run" onClick={() => run(prompt)} disabled={loading}>
+          {loading ? 'RUNNING…' : 'RUN ▶'}
+        </button>
+        <div className="status">
+          {health ? (
+            <>
+              <span className="live">
+                <span className="dotlive" />
+                LIVE
+              </span>
+              <span className="meta">
+                {health.model.toUpperCase()} · {health.n_layers}L · {health.n_heads}H · D
+                {health.d_model}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="live off">
+                <span className="dotlive" />
+                OFFLINE
+              </span>
+              <span className="meta">BACKEND :8000</span>
+            </>
+          )}
+        </div>
       </header>
 
-      <PromptBar onRun={run} loading={loading} />
+      <main className="page">
+        <span className="crop tl" />
+        <span className="crop tr" />
+        <span className="crop bl" />
+        <span className="crop br" />
 
-      {error && <div className="panel error">⚠ {error}</div>}
-
-      {data ? (
-        <>
-          <Tokens tokens={data.tokens} />
-          <Predictions preds={data.top_predictions} />
-          <AttentionView data={data} />
-        </>
-      ) : (
-        !error && (
-          <div className="panel placeholder">
-            Enter a prompt and hit <b>Run</b> to see GPT-2's tokenization, next-token predictions,
-            and per-head attention patterns.
+        <section className="hero">
+          <div className="hero-top">
+            <div className="hero-tt">
+              <span className="bq" />
+              <h1>
+                INTERPRETABILITY ENGINE
+                <small>MECHANISTIC ANALYSIS OF GPT-2 SMALL</small>
+              </h1>
+            </div>
+            <div className="echo">
+              <div className="lbl">active prompt · {fwd ? fwd.tokens.length : '—'} tokens</div>
+              <div className="q">"{prompt}"</div>
+            </div>
           </div>
-        )
-      )}
+          <div className="stat-row">
+            <div className="stat">
+              <div className="v">{health ? health.n_layers : 12}</div>
+              <div className="k lbl">layers</div>
+            </div>
+            <div className="stat">
+              <div className="v">{health ? health.n_heads : 12}</div>
+              <div className="k lbl">heads / layer</div>
+            </div>
+            <div className="stat accent">
+              <div className="v">{health ? health.d_model : 768}</div>
+              <div className="k lbl">d_model</div>
+            </div>
+            <div className="stat">
+              <div className="v">3072</div>
+              <div className="k lbl">d_mlp</div>
+            </div>
+            <div className="stat">
+              <div className="v">50K</div>
+              <div className="k lbl">vocab</div>
+            </div>
+          </div>
+        </section>
 
-      <PatchingView />
-      <ProbeView />
-      <TrajectoryView />
-      <NeuronView />
+        {error && (
+          <div className="mod">
+            <div className="mod-body err">⚠ {error}</div>
+          </div>
+        )}
+
+        {fwd && (
+          <Tokens tokens={fwd.tokens} preds={fwd.top_predictions} focus={focus} onFocus={setFocus} />
+        )}
+        {fwd && <AttentionView data={fwd} focus={focus} onFocus={setFocus} />}
+
+        <div className="split">
+          <ResidualView traj={traj} focus={focus} />
+          <ProbeView />
+        </div>
+
+        <PatchingView />
+        <NeuronView />
+
+        <footer className="colophon">
+          <span>GLASSBOX // GPT-2 INTERPRETABILITY ENGINE</span>
+          <span>TRANSFORMERLENS · FASTAPI</span>
+        </footer>
+      </main>
     </div>
   )
 }

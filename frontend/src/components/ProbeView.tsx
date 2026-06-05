@@ -1,111 +1,128 @@
-import { useEffect, useMemo, useState } from 'react'
-import { LineChart } from './LineChart'
-import type { LineSeries } from './LineChart'
-import { getConcepts, runProbes } from '../api'
-import type { ConceptInfo, ProbeResponse } from '../types'
+import { useEffect, useState } from 'react'
+import { runProbes } from '../api'
+import type { ProbeResponse } from '../types'
 
-const COLORS = ['#a3e635', '#38bdf8', '#f472b6', '#fbbf24', '#c084fc']
-
-function shortLabel(key: string): string {
-  return key === 'subject_number' ? 'subj. number' : key
+function stepPoints(acc: number[], px: (i: number) => number, py: (v: number) => number): string {
+  const pts: string[] = []
+  acc.forEach((v, j) => {
+    pts.push(`${px(j)},${py(v)}`)
+    if (j < acc.length - 1) pts.push(`${px(j + 1)},${py(v)}`)
+  })
+  return pts.join(' ')
 }
 
 export function ProbeView() {
-  const [concepts, setConcepts] = useState<ConceptInfo[]>([])
-  const [selected, setSelected] = useState<Set<string>>(new Set())
   const [res, setRes] = useState<ProbeResponse | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [off, setOff] = useState<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    getConcepts()
-      .then((cs) => {
-        setConcepts(cs)
-        setSelected(new Set(cs.map((c) => c.key)))
-      })
-      .catch(() => setConcepts([]))
+    let live = true
+    runProbes([])
+      .then((r) => live && setRes(r))
+      .catch((e) => live && setError(e instanceof Error ? e.message : String(e)))
+    return () => {
+      live = false
+    }
   }, [])
 
-  const colorOf = useMemo(() => {
-    const m: Record<string, string> = {}
-    concepts.forEach((c, i) => (m[c.key] = COLORS[i % COLORS.length]))
-    return m
-  }, [concepts])
-
-  const toggle = (key: string) => {
-    const next = new Set(selected)
-    if (next.has(key)) next.delete(key)
-    else next.add(key)
-    setSelected(next)
+  const toggle = (k: string) => {
+    const next = new Set(off)
+    if (next.has(k)) next.delete(k)
+    else next.add(k)
+    setOff(next)
   }
 
-  const run = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setRes(await runProbes([...selected]))
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
-    } finally {
-      setLoading(false)
-    }
+  let body
+  if (error) body = <div className="err">⚠ {error}</div>
+  else if (!res) body = <div className="busy">[ TRAINING PROBES ]</div>
+  else {
+    const n = res.n_layers
+    const W = 440
+    const H = 300
+    const L = 34
+    const B = 28
+    const T = 10
+    const R = 12
+    const px = (i: number) => L + (i / (n - 1)) * (W - L - R)
+    const py = (v: number) => T + (1 - v) * (H - T - B)
+    const styleOf = (i: number) => (i === 1 ? '6 4' : i === 2 ? '1.5 3' : '')
+    body = (
+      <>
+        <div className="legend">
+          {res.results.map((r, i) => {
+            const key = r.kind === 'contextual'
+            return (
+              <span
+                key={r.key}
+                className={`lt ${off.has(r.key) ? 'off' : ''} ${key ? 'key' : ''}`}
+                onClick={() => toggle(r.key)}
+              >
+                <span
+                  className="sw"
+                  style={{ borderTopStyle: i === 1 ? 'dashed' : i === 2 ? 'dotted' : 'solid' }}
+                />
+                {r.key.toUpperCase()} <span className="lbl">· {r.kind}</span>
+              </span>
+            )
+          })}
+        </div>
+        <div className="hmwrap">
+          <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet" style={{ maxHeight: 330 }}>
+            {[0, 0.25, 0.5, 0.75, 1].map((v) => (
+              <g key={v}>
+                <line className="gl" x1={L} y1={py(v)} x2={W - R} y2={py(v)} />
+                <text className="axl" fontSize={10} x={L - 5} y={py(v) + 3} textAnchor="end">
+                  {v.toFixed(2)}
+                </text>
+              </g>
+            ))}
+            <line className="ax" strokeWidth={1.5} x1={L} y1={T} x2={L} y2={H - B} />
+            <line className="ax" strokeWidth={1.5} x1={L} y1={H - B} x2={W - R} y2={H - B} />
+            {Array.from({ length: n }, (_, i) => i).map((i) => (
+              <text key={i} className="axl" fontSize={10} x={px(i)} y={H - B + 15} textAnchor="middle">
+                {i}
+              </text>
+            ))}
+            <line x1={L} y1={py(0.5)} x2={W - R} y2={py(0.5)} stroke="var(--dim)" strokeWidth={1} strokeDasharray="4 3" />
+            {res.results.map((r, i) => {
+              if (off.has(r.key)) return null
+              const key = r.kind === 'contextual'
+              const col = key ? 'var(--acc)' : 'var(--text)'
+              return (
+                <g key={r.key}>
+                  <polyline
+                    points={stepPoints(r.test_acc, px, py)}
+                    fill="none"
+                    stroke={col}
+                    strokeWidth={key ? 2.6 : 1.5}
+                    strokeDasharray={styleOf(i)}
+                  />
+                  {key &&
+                    r.test_acc.map((v, j) => (
+                      <rect key={j} x={px(j) - 2} y={py(v) - 2} width={4} height={4} fill={col} />
+                    ))}
+                </g>
+              )
+            })}
+          </svg>
+        </div>
+      </>
+    )
   }
-
-  const series: LineSeries[] = res
-    ? res.results.map((r) => ({
-        key: r.key,
-        label: shortLabel(r.key),
-        color: colorOf[r.key] ?? '#a3e635',
-        values: r.test_acc,
-      }))
-    : []
 
   return (
-    <div className="panel">
-      <h2>
-        Linear probing <span className="dim">— when does a concept become linearly decodable?</span>
-      </h2>
-      <p className="hint">
-        For each concept a logistic-regression probe is trained on the last-token residual stream at
-        every layer (split by word, so the test set holds out unseen words) and its test accuracy is
-        plotted. <b>Lexical</b> features live in the token embeddings, so they are decodable from
-        layer 0; a <b>contextual</b> feature like subject number — read past a distracting noun of the
-        opposite number — must be computed, so it starts near (or below) chance and emerges over the
-        layers.
-      </p>
-
-      <div className="selector">
-        <span className="sel-label">CONCEPTS</span>
-        {concepts.map((c) => (
-          <button
-            key={c.key}
-            className={`chip probe-chip ${selected.has(c.key) ? 'active' : ''}`}
-            style={selected.has(c.key) ? { borderColor: colorOf[c.key], color: colorOf[c.key] } : undefined}
-            onClick={() => toggle(c.key)}
-            title={`${c.label} — ${c.kind}`}
-          >
-            <span className="swatch-dot" style={{ background: colorOf[c.key] }} />
-            {c.label} <span className="kind">· {c.kind}</span>
-          </button>
-        ))}
-        <button className="btn" onClick={run} disabled={loading || selected.size === 0}>
-          {loading ? 'Probing…' : 'Run probes ▸'}
-        </button>
+    <section className="mod">
+      <div className="mod-head">
+        <div className="idx">04</div>
+        <div className="ttl">PROBES</div>
+        <div className="hmeta">
+          <span className="lbl">
+            logreg · <b>acc / layer</b>
+          </span>
+        </div>
       </div>
-
-      {error && <div className="error">⚠ {error}</div>}
-
-      {res && series.length > 0 && (
-        <>
-          <div className="heatmap-wrap">
-            <LineChart series={series} nx={res.n_layers} baseline={0.5} />
-          </div>
-          <div className="legend">
-            <span className="swatch" style={{ background: '#4b5161' }} /> dashed = 0.5 chance
-            &nbsp;·&nbsp; higher = more linearly decodable at that layer
-          </div>
-        </>
-      )}
-    </div>
+      <div className="mod-body">{body}</div>
+    </section>
   )
 }
