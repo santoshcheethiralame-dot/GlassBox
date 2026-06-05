@@ -6,6 +6,7 @@ import { AttentionView } from './components/AttentionView'
 import { PatchingView } from './components/PatchingView'
 import { ProbeView } from './components/ProbeView'
 import { TrajectoryView } from './components/TrajectoryView'
+import { NeuronView } from './components/NeuronView'
 import { getHealth, runForward } from './api'
 import type { ForwardResponse, HealthResponse } from './types'
 
@@ -69,6 +70,7 @@ export default function App() {
       <PatchingView />
       <ProbeView />
       <TrajectoryView />
+      <NeuronView />
     </div>
   )
 }

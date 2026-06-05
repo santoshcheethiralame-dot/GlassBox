@@ -415,3 +415,90 @@ body {
   background: var(--panel-2);
   cursor: default;
 }
+
+.neuron-input {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-strong);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 5px 9px;
+  width: 92px;
+}
+.neuron-input:focus {
+  outline: none;
+  border-color: var(--accent-dim);
+}
+.neuron-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+.neuron-card {
+  text-align: left;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--text);
+  overflow: hidden;
+}
+.neuron-card:hover {
+  border-color: var(--accent-dim);
+}
+.neuron-card-head {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-strong);
+  margin-bottom: 7px;
+}
+.neuron-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  margin: 12px 0;
+}
+.neuron-detail-head b {
+  color: var(--accent);
+}
+.neuron-detail-head .back {
+  margin-left: auto;
+}
+.contexts {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.ctx-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.ctx-act {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  width: 40px;
+  text-align: right;
+  flex: none;
+}
+.ctx-tokens {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.ctx-tok {
+  white-space: pre;
+  border-radius: 2px;
+}
+.ctx-tok.mx {
+  outline: 1px solid var(--accent);
+  color: var(--text-strong);
+  font-weight: 700;
+}

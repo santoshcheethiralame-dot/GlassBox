@@ -2,6 +2,8 @@ import type {
   ConceptInfo,
   ForwardResponse,
   HealthResponse,
+  NeuronDetail,
+  NeuronScanResponse,
   PatchResponse,
   ProbeResponse,
   TrajectoryResponse,
@@ -15,6 +17,18 @@ async function postJSON<T>(path: string, body: unknown): Promise<T> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
+  if (!res.ok) {
+    const detail = await res
+      .json()
+      .then((j) => j.detail ?? res.statusText)
+      .catch(() => res.statusText)
+    throw new Error(detail)
+  }
+  return res.json() as Promise<T>
+}
+
+async function getJSON<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}${path}`)
   if (!res.ok) {
     const detail = await res
       .json()
@@ -40,10 +54,8 @@ export function runPatching(input: PatchInput): Promise<PatchResponse> {
   return postJSON<PatchResponse>('/patch', input)
 }
 
-export async function getConcepts(): Promise<ConceptInfo[]> {
-  const res = await fetch(`${BASE}/probe/concepts`)
-  if (!res.ok) throw new Error('could not load concepts')
-  return res.json() as Promise<ConceptInfo[]>
+export function getConcepts(): Promise<ConceptInfo[]> {
+  return getJSON<ConceptInfo[]>('/probe/concepts')
 }
 
 export function runProbes(concepts: string[]): Promise<ProbeResponse> {
@@ -54,8 +66,14 @@ export function runTrajectory(prompt: string): Promise<TrajectoryResponse> {
   return postJSON<TrajectoryResponse>('/trajectory', { prompt })
 }
 
-export async function getHealth(): Promise<HealthResponse> {
-  const res = await fetch(`${BASE}/health`)
-  if (!res.ok) throw new Error('backend not reachable')
-  return res.json() as Promise<HealthResponse>
+export function scanLayer(layer: number): Promise<NeuronScanResponse> {
+  return getJSON<NeuronScanResponse>(`/neuron/scan?layer=${layer}`)
+}
+
+export function neuronDetail(layer: number, index: number): Promise<NeuronDetail> {
+  return getJSON<NeuronDetail>(`/neuron?layer=${layer}&index=${index}`)
+}
+
+export function getHealth(): Promise<HealthResponse> {
+  return getJSON<HealthResponse>('/health')
 }

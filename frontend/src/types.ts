@@ -67,3 +67,32 @@ export interface TrajectoryResponse {
   explained_variance: number[]
   trajectories: number[][][]
 }
+
+export interface NeuronContext {
+  tokens: string[]
+  acts: number[]
+  max_pos: number
+  max_act: number
+}
+
+export interface NeuronSummary {
+  index: number
+  max_act: number
+  density: number
+  contexts: NeuronContext[]
+}
+
+export interface NeuronScanResponse {
+  layer: number
+  d_mlp: number
+  n_sentences: number
+  neurons: NeuronSummary[]
+}
+
+export interface NeuronDetail {
+  layer: number
+  index: number
+  max_act: number
+  density: number
+  contexts: NeuronContext[]
+}
