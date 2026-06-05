@@ -1,0 +1,15 @@
+backend/.venv/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.db
+*.sqlite
+data/cache/
+.env
+*.log
+.DS_Store
+Thumbs.db
