@@ -1,0 +1,13 @@
+**/node_modules
+**/__pycache__
+**/*.pyc
+**/*.pyo
+backend/.venv
+frontend/dist
+frontend/.vite
+.git
+.gitignore
+lens
+*.log
+.DS_Store
+Thumbs.db

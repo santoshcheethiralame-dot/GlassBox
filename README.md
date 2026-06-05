@@ -1,3 +1,14 @@
+---
+title: GlassBox
+emoji: 🔬
+colorFrom: red
+colorTo: gray
+sdk: docker
+app_port: 7860
+pinned: false
+short_description: A browser-based microscope for GPT-2 small
+---
+
 # GlassBox
 
 A browser-based microscope for **GPT-2 small**. Type a prompt and watch the model
