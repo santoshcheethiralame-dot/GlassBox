@@ -5,7 +5,7 @@ import torch
 from fastapi import HTTPException
 
 from corpus import CORPUS
-from model import get_model
+from model import get_model, synchronized
 
 _tokens = None
 _cache_layer = None
@@ -30,6 +30,7 @@ def _ensure_tokens():
     return _tokens
 
 
+@synchronized
 def _layer_acts(layer):
     global _cache_layer, _cache
     if _cache_layer == layer:

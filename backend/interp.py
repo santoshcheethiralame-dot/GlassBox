@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from fastapi import HTTPException
 
-from model import get_model
+from model import get_model, synchronized
 from schemas import MAX_PATCH_TOKENS, MAX_TOKENS
 
 
@@ -17,6 +17,7 @@ def _check_length(tokens: torch.Tensor, limit: int = MAX_TOKENS) -> None:
         )
 
 
+@synchronized
 def run_forward(prompt: str, top_k: int = 10) -> dict:
     model = get_model()
     tokens = model.to_tokens(prompt)
@@ -63,6 +64,7 @@ def _single_token_id(model, text: str) -> int:
     return int(ids[0])
 
 
+@synchronized
 def run_patching(
     clean_prompt: str, corrupted_prompt: str, answer: str, corrupted_answer: str
 ) -> dict:

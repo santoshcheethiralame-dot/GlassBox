@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.preprocessing import StandardScaler
 
-from model import get_model
+from model import get_model, synchronized
 
 _POS = [
     "wonderful", "fantastic", "excellent", "delightful", "amazing", "superb",
@@ -147,6 +147,7 @@ def list_concepts():
     ]
 
 
+@synchronized
 def _last_token_resids(prompts):
     model = get_model()
     rows = [model.to_tokens(p)[0] for p in prompts]

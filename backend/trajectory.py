@@ -5,10 +5,11 @@ import torch
 from fastapi import HTTPException
 from sklearn.decomposition import PCA
 
-from model import get_model
+from model import get_model, synchronized
 from schemas import MAX_TOKENS
 
 
+@synchronized
 def run_trajectory(prompt: str) -> dict:
     model = get_model()
     tokens = model.to_tokens(prompt)
