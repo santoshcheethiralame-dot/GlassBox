@@ -34,13 +34,14 @@ Open http://localhost:5173 (the dev server proxies API calls to :8000).
 - [x] Forward pass: tokenization + top-k next-token predictions
 - [x] Attention heatmaps: per layer/head attention patterns (12 × 12), small-multiples + detail view
 - [x] Activation patching: residual-stream causal-tracing heatmap (clean vs corrupted)
-- [ ] Linear probing: per-layer concept decodability
+- [x] Linear probing: per-layer concept decodability, contrasting lexical vs emergent contextual features
 - [ ] Neuron analysis: maximally-activating examples
 
-The first three are built and verified end-to-end; linear probing and neuron
-analysis are next.
+The first four are built and verified end-to-end; neuron analysis is next.
 
 ## API
 - `GET  /health` — model dimensions
 - `POST /forward` — `{prompt, top_k}` → tokens, top-k predictions, attention `[layer][head][q][k]`
 - `POST /patch` — `{clean_prompt, corrupted_prompt, answer, corrupted_answer}` → restoration `scores[layer][pos]`
+- `GET  /probe/concepts` — available probe concepts
+- `POST /probe` — `{concepts}` → per-layer probe train/test accuracy for each concept

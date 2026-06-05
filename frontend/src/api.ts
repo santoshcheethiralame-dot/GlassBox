@@ -1,4 +1,4 @@
-import type { ForwardResponse, HealthResponse, PatchResponse } from './types'
+import type { ConceptInfo, ForwardResponse, HealthResponse, PatchResponse, ProbeResponse } from './types'
 
 const BASE = '/api'
 
@@ -31,6 +31,16 @@ export interface PatchInput {
 
 export function runPatching(input: PatchInput): Promise<PatchResponse> {
   return postJSON<PatchResponse>('/patch', input)
+}
+
+export async function getConcepts(): Promise<ConceptInfo[]> {
+  const res = await fetch(`${BASE}/probe/concepts`)
+  if (!res.ok) throw new Error('could not load concepts')
+  return res.json() as Promise<ConceptInfo[]>
+}
+
+export function runProbes(concepts: string[]): Promise<ProbeResponse> {
+  return postJSON<ProbeResponse>('/probe', { concepts })
 }
 
 export async function getHealth(): Promise<HealthResponse> {

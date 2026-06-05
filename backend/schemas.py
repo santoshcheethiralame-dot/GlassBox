@@ -16,3 +16,7 @@ class PatchRequest(BaseModel):
     corrupted_prompt: str = Field(..., min_length=1)
     answer: str = Field(..., min_length=1)
     corrupted_answer: str = Field(..., min_length=1)
+
+
+class ProbeRequest(BaseModel):
+    concepts: list[str] = Field(default_factory=list)

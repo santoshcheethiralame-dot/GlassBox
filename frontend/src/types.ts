@@ -33,3 +33,30 @@ export interface PatchResponse {
   logit_diff_corrupted: number
   scores: number[][]
 }
+
+export interface ConceptInfo {
+  key: string
+  label: string
+  kind: string
+  positive: string
+  negative: string
+}
+
+export interface ProbeConceptResult {
+  key: string
+  label: string
+  kind: string
+  positive: string
+  negative: string
+  n_examples: number
+  n_train: number
+  n_test: number
+  baseline: number
+  train_acc: number[]
+  test_acc: number[]
+}
+
+export interface ProbeResponse {
+  n_layers: number
+  results: ProbeConceptResult[]
+}

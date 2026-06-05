@@ -381,3 +381,24 @@ body {
 .legend .swatch:first-child {
   margin-left: 0;
 }
+
+.probe-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.probe-chip.active {
+  background: var(--panel-2);
+  font-weight: 600;
+}
+.probe-chip .kind {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+.swatch-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+}
