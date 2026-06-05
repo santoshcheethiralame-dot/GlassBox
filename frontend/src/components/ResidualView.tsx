@@ -2,26 +2,22 @@ import { useState } from 'react'
 import { cleanToken, short } from '../util'
 import type { TrajectoryResponse } from '../types'
 
-/* Warm palette cycling through the app's red accent neighbourhood */
+/* Strict monochromatic warm palette (reds, corals, warm greys) */
 const PALETTE = [
   '#ff3b30', // acc red
-  '#ff6a3d', // orange-red
-  '#ff9a44', // amber
-  '#ffc857', // gold
-  '#e8de72', // warm lime
+  '#ff7866', // light red
+  '#d9695b', // soft red
+  '#b3261d', // deep red
+  '#ff9980', // coral
   '#d6d3c6', // text (warm grey)
-  '#8e9196', // cool grey
-  '#6ba3be', // muted cyan
-  '#b3261d', // acc2 deep red
-  '#d9695b', // --red
-  '#f0a090', // salmon
-  '#c8b88a', // khaki
+  '#e08c82', // dusty rose
+  '#a34c44', // brick
+  '#ffb3a6', // peach
+  '#8a7b75', // brown grey
 ]
 
-function tokenColor(index: number, total: number): string {
-  if (total <= PALETTE.length) return PALETTE[index % PALETTE.length]
-  const hue = (index / total) * 360
-  return `hsl(${hue}, 72%, 62%)`
+function tokenColor(index: number, _total: number): string {
+  return PALETTE[index % PALETTE.length]
 }
 
 export function ResidualView({ traj, focus }: { traj: TrajectoryResponse | null; focus: number | null }) {
