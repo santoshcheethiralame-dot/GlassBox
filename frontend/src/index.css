@@ -174,3 +174,7 @@ svg { display: block; }
 .mxt { background: var(--acc); color: #0a0b0f; font-weight: 700; padding: 0 1px; }
 
 .colophon { display: flex; justify-content: space-between; align-items: center; border: 2px solid var(--line2); background: var(--band); color: var(--dim); padding: 18px 26px; font-size: 11px; font-weight: 600; letter-spacing: 1px; }
+
+.traj-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.traj-chip { display: inline-block; border: 1.5px solid; padding: 3px 9px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; font-family: var(--mono); cursor: default; transition: background 0.15s, color 0.15s; white-space: pre; }
+.traj-chip.sel { font-weight: 800; }

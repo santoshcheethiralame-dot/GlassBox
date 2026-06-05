@@ -122,3 +122,4 @@ A few decisions that aren't obvious from the code:
 - **Probes split by source word, not by example.** A `StratifiedGroupKFold`
   grouped on the word keeps the same word out of both train and test; otherwise
   the probe just memorises token identity and every layer scores ~1.0.
+
