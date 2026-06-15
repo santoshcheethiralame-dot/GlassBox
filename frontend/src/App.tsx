@@ -5,14 +5,18 @@ import { ResidualView } from './components/ResidualView'
 import { ProbeView } from './components/ProbeView'
 import { PatchingView } from './components/PatchingView'
 import { NeuronView } from './components/NeuronView'
-import { getHealth, runForward, runTrajectory } from './api'
-import type { ForwardResponse, HealthResponse, TrajectoryResponse } from './types'
+import { SaeView } from './components/SaeView'
+import { getHealth, getModels, runForward, runTrajectory } from './api'
+import type { ForwardResponse, HealthResponse, ModelInfo, TrajectoryResponse } from './types'
 
 const DEFAULT_PROMPT = 'When Mary and John went to the store, John gave a drink to'
 
 export default function App() {
   const [health, setHealth] = useState<HealthResponse | null>(null)
+  const [models, setModels] = useState<ModelInfo[]>([])
+  const [model, setModel] = useState('gpt2')
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT)
+  const [applied, setApplied] = useState(DEFAULT_PROMPT)
   const [fwd, setFwd] = useState<ForwardResponse | null>(null)
   const [traj, setTraj] = useState<TrajectoryResponse | null>(null)
   const [focus, setFocus] = useState<number | null>(null)
@@ -22,6 +26,7 @@ export default function App() {
   const run = async (p: string) => {
     const q = p.trim()
     if (!q) return
+    setApplied(q)
     setLoading(true)
     setError(null)
     setFocus(null)
@@ -41,6 +46,9 @@ export default function App() {
     getHealth()
       .then(setHealth)
       .catch(() => setHealth(null))
+    getModels()
+      .then(setModels)
+      .catch(() => setModels([]))
     run(DEFAULT_PROMPT)
   }, [])
 
@@ -71,6 +79,16 @@ export default function App() {
         <button className="run" onClick={() => run(prompt)} disabled={loading}>
           {loading ? 'RUNNING…' : 'RUN ▶'}
         </button>
+        <div className="mdl">
+          <span className="lbl">model</span>
+          <select value={model} onChange={(e) => setModel(e.target.value)}>
+            {(models.length ? models : [{ key: 'gpt2', name: 'gpt2', device: 'cpu' }]).map((m) => (
+              <option key={m.key} value={m.key}>
+                {m.key}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="status">
           {health ? (
             <>
@@ -149,6 +167,8 @@ export default function App() {
           <Tokens tokens={fwd.tokens} preds={fwd.top_predictions} focus={focus} onFocus={setFocus} />
         )}
         {fwd && <AttentionView data={fwd} focus={focus} onFocus={setFocus} />}
+
+        <SaeView prompt={applied} model={model} />
 
         <div className="split">
           <ResidualView traj={traj} focus={focus} />

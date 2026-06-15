@@ -24,3 +24,16 @@ class ProbeRequest(BaseModel):
 
 class TrajectoryRequest(BaseModel):
     prompt: str = Field(..., min_length=1)
+
+
+class SaeFeaturesRequest(BaseModel):
+    prompt: str = Field(..., min_length=1)
+    layer: int = Field(0, ge=0)
+    top_k: int = Field(12, ge=1, le=50)
+    model_key: str = Field("gpt2")
+
+
+class SaeLabelsRequest(BaseModel):
+    layer: int = Field(0, ge=0)
+    indices: list[int] = Field(default_factory=list)
+    model_key: str = Field("gpt2")

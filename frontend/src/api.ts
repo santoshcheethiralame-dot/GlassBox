@@ -2,10 +2,13 @@ import type {
   ConceptInfo,
   ForwardResponse,
   HealthResponse,
+  ModelInfo,
   NeuronDetail,
   NeuronScanResponse,
   PatchResponse,
   ProbeResponse,
+  SaeFeaturesResponse,
+  SaeInfo,
   TrajectoryResponse,
 } from './types'
 
@@ -84,4 +87,38 @@ export function neuronDetail(layer: number, index: number): Promise<NeuronDetail
 
 export function getHealth(): Promise<HealthResponse> {
   return getJSON<HealthResponse>('/health')
+}
+
+export function getModels(): Promise<ModelInfo[]> {
+  return getJSON<ModelInfo[]>('/models')
+}
+
+export function getSaeInfo(model: string): Promise<SaeInfo> {
+  return getJSON<SaeInfo>(`/sae/info?model_key=${encodeURIComponent(model)}`)
+}
+
+export function runSaeFeatures(
+  prompt: string,
+  layer: number,
+  model: string,
+  topK = 12,
+): Promise<SaeFeaturesResponse> {
+  return postJSON<SaeFeaturesResponse>('/sae/features', {
+    prompt,
+    layer,
+    top_k: topK,
+    model_key: model,
+  })
+}
+
+export function getSaeLabels(
+  model: string,
+  layer: number,
+  indices: number[],
+): Promise<Record<string, string | null>> {
+  return postJSON<Record<string, string | null>>('/sae/labels', {
+    model_key: model,
+    layer,
+    indices,
+  })
 }

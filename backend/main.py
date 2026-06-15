@@ -8,10 +8,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from interp import run_forward, run_patching
-from model import MODEL_NAME, get_model
+from model import MODEL_NAME, get_model, list_models
 from neurons import neuron_detail, scan_layer
 from probing import list_concepts, run_probes
-from schemas import ForwardRequest, PatchRequest, ProbeRequest, TrajectoryRequest
+from saes import has_sae, labels_for, sae_features, sae_info
+from schemas import (
+    ForwardRequest,
+    PatchRequest,
+    ProbeRequest,
+    SaeFeaturesRequest,
+    SaeLabelsRequest,
+    TrajectoryRequest,
+)
 from trajectory import run_trajectory
 
 
@@ -76,6 +84,28 @@ def neuron_scan(layer: int = Query(0, ge=0, le=11)) -> dict:
 @app.get("/api/neuron")
 def neuron(layer: int = Query(..., ge=0, le=11), index: int = Query(..., ge=0, le=3071)) -> dict:
     return neuron_detail(layer, index)
+
+
+@app.get("/api/models")
+def models() -> list:
+    return list_models()
+
+
+@app.get("/api/sae/info")
+def sae_info_route(model_key: str = Query("gpt2")) -> dict:
+    if not has_sae(model_key):
+        return {"model": model_key, "available": False}
+    return {"available": True, **sae_info(model_key)}
+
+
+@app.post("/api/sae/features")
+def sae_features_route(req: SaeFeaturesRequest) -> dict:
+    return sae_features(req.prompt, req.layer, req.top_k, model_key=req.model_key)
+
+
+@app.post("/api/sae/labels")
+def sae_labels_route(req: SaeLabelsRequest) -> dict:
+    return labels_for(req.model_key, req.layer, req.indices)
 
 
 _static = os.path.join(os.path.dirname(__file__), "static")

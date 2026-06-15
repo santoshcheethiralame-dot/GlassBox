@@ -2,18 +2,18 @@ import { useState } from 'react'
 import { cleanToken, short } from '../util'
 import type { TrajectoryResponse } from '../types'
 
-/* Strict monochromatic warm palette (reds, corals, warm greys) */
+/* Strict monochromatic cool palette (blues, indigos, cool greys) */
 const PALETTE = [
-  '#ff3b30', // acc red
-  '#ff7866', // light red
-  '#d9695b', // soft red
-  '#b3261d', // deep red
-  '#ff9980', // coral
-  '#d6d3c6', // text (warm grey)
-  '#e08c82', // dusty rose
-  '#a34c44', // brick
-  '#ffb3a6', // peach
-  '#8a7b75', // brown grey
+  '#1a2bff', // electric blue (acc)
+  '#5566ff', // light blue
+  '#0e1ad0', // deep blue
+  '#3b7dff', // sky blue
+  '#6b675f', // cool grey
+  '#2440b8', // navy
+  '#7a88ff', // periwinkle
+  '#1566c0', // azure
+  '#0a0a0a', // ink
+  '#9aa4ff', // pale blue
 ]
 
 function tokenColor(index: number, _total: number): string {
@@ -170,7 +170,7 @@ export function ResidualView({ traj, focus }: { traj: TrajectoryResponse | null;
                         cx={sx(x)}
                         cy={sy(y)}
                         r={r}
-                        fill={last ? col : '#0a0b0f'}
+                        fill={last ? col : '#ffffff'}
                         stroke={col}
                         strokeWidth={last ? 0 : 1.6}
                         onMouseMove={(e) => setHover({ t, p: i, x: e.clientX, y: e.clientY })}
@@ -228,7 +228,7 @@ export function ResidualView({ traj, focus }: { traj: TrajectoryResponse | null;
               className={`traj-chip${focus === t ? ' sel' : ''}`}
               style={{
                 borderColor: tokenColor(t, nTokens),
-                color: focus === t ? '#0a0b0f' : tokenColor(t, nTokens),
+                color: focus === t ? '#edeae0' : tokenColor(t, nTokens),
                 background: focus === t ? tokenColor(t, nTokens) : 'transparent',
               }}
             >

@@ -96,3 +96,32 @@ export interface NeuronDetail {
   density: number
   contexts: NeuronContext[]
 }
+
+export interface ModelInfo {
+  key: string
+  name: string
+  device: string
+}
+
+export interface SaeInfo {
+  available: boolean
+  model?: string
+  n_layers?: number
+  pt_it_caveat?: boolean
+  release?: string
+}
+
+export interface SaeFeature {
+  index: number
+  act: number
+}
+
+export interface SaeFeaturesResponse {
+  model: string
+  layer: number
+  hook: string
+  d_sae: number
+  pt_it_caveat: boolean
+  tokens: string[]
+  features: SaeFeature[][]
+}
