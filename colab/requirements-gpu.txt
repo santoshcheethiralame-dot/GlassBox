@@ -1,0 +1,5 @@
+sae_lens
+transformer_lens
+transformers>=4.44
+accelerate
+requests
