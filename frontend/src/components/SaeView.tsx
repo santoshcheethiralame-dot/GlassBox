@@ -54,7 +54,7 @@ export function SaeView({ prompt, model }: { prompt: string; model: string }) {
   return (
     <section className="mod">
       <div className="mod-head">
-        <div className="idx">07</div>
+        <div className="idx">03</div>
         <div className="ttl">SAE FEATURES</div>
         <div className="hmeta">
           <span className="lbl">
@@ -108,7 +108,7 @@ export function SaeView({ prompt, model }: { prompt: string; model: string }) {
                       onClick={() => setSel(i)}
                     >
                       <span className="t">{cleanToken(t)}</span>
-                      <span className="i">{(data.features[i] || []).length}f</span>
+                      <span className="i">{(data.features[i]?.[0]?.act ?? 0).toFixed(1)}</span>
                     </div>
                   ))}
                 </div>

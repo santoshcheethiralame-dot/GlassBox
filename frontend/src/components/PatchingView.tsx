@@ -128,7 +128,7 @@ export function PatchingView() {
   return (
     <section className="mod">
       <div className="mod-head">
-        <div className="idx">05</div>
+        <div className="idx">06</div>
         <div className="ttl">ACTIVATION PATCHING</div>
         <div className="hmeta">
           <span className="lbl">

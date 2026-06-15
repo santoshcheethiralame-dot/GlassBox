@@ -38,7 +38,7 @@ export function NeuronView() {
   return (
     <section className="mod">
       <div className="mod-head">
-        <div className="idx">06</div>
+        <div className="idx">07</div>
         <div className="ttl">NEURONS</div>
         <div className="hmeta">
           <span className="lbl">
