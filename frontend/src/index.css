@@ -50,13 +50,23 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background-image:
-    radial-gradient(560px 560px at var(--mx, 75%) var(--my, 14%), rgba(255, 162, 77, 0.10), transparent 60%),
-    radial-gradient(1240px 720px at 90% -14%, rgba(255, 162, 77, 0.11), transparent 58%),
-    radial-gradient(1020px 700px at -8% 16%, rgba(255, 178, 122, 0.055), transparent 55%),
-    radial-gradient(900px 640px at 55% 118%, rgba(255, 162, 77, 0.05), transparent 55%);
+    radial-gradient(620px 620px at var(--mx, 75%) var(--my, 12%), rgba(255, 178, 98, 0.10), transparent 60%),
+    radial-gradient(1360px 860px at 96% -20%, rgba(255, 150, 70, 0.19), transparent 58%),
+    radial-gradient(1160px 820px at -14% 2%, rgba(238, 104, 58, 0.13), transparent 56%),
+    radial-gradient(1080px 780px at 44% 126%, rgba(255, 186, 112, 0.10), transparent 58%),
+    radial-gradient(760px 760px at 18% 52%, rgba(255, 140, 66, 0.05), transparent 60%);
   animation: breathe 18s ease-in-out infinite alternate;
 }
-@keyframes breathe { from { opacity: 0.78; transform: scale(1); } to { opacity: 1; transform: scale(1.05); } }
+@keyframes breathe { from { opacity: 0.7; transform: scale(1); } to { opacity: 1; transform: scale(1.06); } }
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 ::selection { background: var(--acc); color: #07080c; }
 input { font-family: inherit; }
 .lbl { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
@@ -298,11 +308,11 @@ svg { display: block; }
 
 /* ── v3 layout: acts + sticky side-nav ───────────────────────── */
 .body { display: grid; grid-template-columns: 174px minmax(0, 1fr); gap: 22px; align-items: start; }
-.sidenav { position: sticky; top: 110px; align-self: start; display: flex; flex-direction: column; border: 1px solid var(--glass-brd); background: var(--glass); backdrop-filter: blur(var(--blur)) saturate(125%); -webkit-backdrop-filter: blur(var(--blur)) saturate(125%); }
+.sidenav { position: sticky; top: 110px; align-self: start; min-height: calc(100vh - 152px); display: flex; flex-direction: column; border: 1px solid var(--glass-brd); background: var(--glass); backdrop-filter: blur(var(--blur)) saturate(125%); -webkit-backdrop-filter: blur(var(--blur)) saturate(125%); }
 .sn-top { padding: 18px 18px 14px; border-bottom: 1px solid var(--line); }
 .sn-eyebrow { display: block; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--acc); margin-bottom: 3px; }
 .sn-title { font-family: var(--display); font-size: 16px; font-weight: 800; letter-spacing: 3px; color: var(--strong); }
-.sn-acts { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 5px; }
+.sn-acts { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 6px; justify-content: space-between; }
 .sn-item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: var(--r-md); text-decoration: none; color: var(--dim); position: relative; transition: background 0.18s, color 0.18s, box-shadow 0.18s; }
 .sn-item:hover { background: var(--glass2); color: var(--text); }
 .sn-ico { display: grid; place-items: center; width: 20px; height: 20px; flex: none; }
@@ -346,7 +356,7 @@ svg { display: block; }
 /* ── responsive ──────────────────────────────────────────────── */
 @media (max-width: 1180px) {
   .body { grid-template-columns: 1fr; }
-  .sidenav { position: sticky; top: 102px; z-index: 30; flex-direction: row; align-items: center; }
+  .sidenav { position: sticky; top: 102px; z-index: 30; min-height: 0; flex-direction: row; align-items: center; }
   .sn-top, .sn-foot { display: none; }
   .sn-acts { flex-direction: row; gap: 8px; overflow-x: auto; padding: 8px 12px; }
   .sn-item { white-space: nowrap; padding: 8px 12px; }
