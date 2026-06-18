@@ -20,7 +20,7 @@ export function ExperimentView({ model }: { model: string }) {
   const maxLd = data ? Math.max(...data.rows.map((r) => Math.abs(r.logit_diff)), 1) : 1
 
   return (
-    <section className="mod">
+    <section className="mod adv">
       <div className="mod-head">
         <div className="idx">09</div>
         <div className="ttl">HALLUCINATION LAB</div>
@@ -90,7 +90,7 @@ export function ExperimentView({ model }: { model: string }) {
             </div>
             <div className="lbl" style={{ marginTop: 8, textTransform: 'none', letterSpacing: '0.3px' }}>
               bar = logit-diff (grounded − parametric): <span style={{ color: 'var(--acc)' }}>right/red</span>{' '}
-              follows context · <span style={{ color: '#6fa8c8' }}>left/blue</span> confabulates
+              follows context · <span style={{ color: 'var(--cool)' }}>left/blue</span> confabulates
             </div>
 
             {data.flip && (

@@ -40,7 +40,7 @@ export function AttributionView({ model }: { model: string }) {
   const maxAbs = data ? data.attribution.reduce((m, a) => Math.max(m, Math.abs(a)), 0) || 1 : 1
 
   return (
-    <section className="mod">
+    <section className="mod adv">
       <div className="mod-head">
         <div className="idx">08</div>
         <div className="ttl">CONTEXT ATTRIBUTION</div>
@@ -150,7 +150,7 @@ export function AttributionView({ model }: { model: string }) {
 
             <div className="lbl" style={{ marginTop: 12, textTransform: 'none', letterSpacing: '0.3px' }}>
               <span style={{ color: 'var(--acc)' }}>red</span> supports "{cleanToken(data.answer)}" ·{' '}
-              <span style={{ color: '#6fa8c8' }}>blue</span> supports "{cleanToken(data.corrupted_answer)}" ·
+              <span style={{ color: 'var(--cool)' }}>blue</span> supports "{cleanToken(data.corrupted_answer)}" ·
               outlined = corrupted positions · hover for values
             </div>
           </>

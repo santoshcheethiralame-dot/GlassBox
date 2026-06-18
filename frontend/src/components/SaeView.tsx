@@ -82,7 +82,7 @@ export function SaeView({ prompt, model }: { prompt: string; model: string }) {
   const maxDelta = interv ? interv.deltas.reduce((m, d) => Math.max(m, Math.abs(d.delta)), 0) || 1 : 1
 
   return (
-    <section className="mod">
+    <section className="mod adv">
       <div className="mod-head">
         <div className="idx">03</div>
         <div className="ttl">SAE FEATURES</div>

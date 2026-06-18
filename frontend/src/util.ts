@@ -16,5 +16,5 @@ function rgb(a: number[], b: number[], t: number): string {
   return `rgb(${Math.round(a[0] + (b[0] - a[0]) * t)},${Math.round(a[1] + (b[1] - a[1]) * t)},${Math.round(a[2] + (b[2] - a[2]) * t)})`
 }
 
-export const accMix = (t: number) => rgb([29, 33, 42], [255, 59, 48], t)
-export const negMix = (t: number) => rgb([29, 33, 42], [78, 150, 184], t)
+export const accMix = (t: number) => rgb([18, 22, 30], [255, 59, 48], t)
+export const negMix = (t: number) => rgb([18, 22, 30], [43, 207, 230], t)

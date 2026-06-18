@@ -65,6 +65,7 @@ export default function App() {
             <i />
           </span>
           <span className="nm">GLASSBOX</span>
+          <span className="ver">v2</span>
         </div>
         <div className="prompt-zone">
           <span className="lbl tag">prompt /</span>
@@ -127,7 +128,7 @@ export default function App() {
               <span className="bq" />
               <h1>
                 INTERPRETABILITY ENGINE
-                <small>MECHANISTIC ANALYSIS OF GPT-2 SMALL</small>
+                <small>FEATURES · INTERVENTIONS · CAUSAL ATTRIBUTION</small>
               </h1>
             </div>
             <div className="echo">
