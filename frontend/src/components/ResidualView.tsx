@@ -2,18 +2,18 @@ import { useState } from 'react'
 import { cleanToken, short } from '../util'
 import type { TrajectoryResponse } from '../types'
 
-/* Strict monochromatic warm palette (reds, corals, warm greys) */
+/* Monochromatic mint palette (mints, teals, warm greys) */
 const PALETTE = [
-  '#ff3b30', // acc red
-  '#ff7866', // light red
-  '#d9695b', // soft red
-  '#b3261d', // deep red
-  '#ff9980', // coral
+  '#2ee6a6', // acc mint
+  '#5ff0c2', // light mint
+  '#1fbf88', // deep mint
+  '#7fe6d2', // pale aqua
+  '#3fd6c0', // teal
   '#d6d3c6', // text (warm grey)
-  '#e08c82', // dusty rose
-  '#a34c44', // brick
-  '#ffb3a6', // peach
-  '#8a7b75', // brown grey
+  '#8fd6b8', // sage
+  '#1f9e7e', // pine
+  '#b3f0d8', // mint cream
+  '#8a8f84', // grey-green
 ]
 
 function tokenColor(index: number, _total: number): string {
@@ -243,7 +243,7 @@ export function ResidualView({ traj, focus }: { traj: TrajectoryResponse | null;
   return (
     <section className="mod">
       <div className="mod-head">
-        <div className="idx">04</div>
+        <div className="idx">03</div>
         <div className="ttl">RESIDUAL</div>
         <div className="hmeta">
           <span className="lbl">

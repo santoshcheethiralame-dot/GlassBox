@@ -114,7 +114,7 @@ export function ProbeView() {
   return (
     <section className="mod">
       <div className="mod-head">
-        <div className="idx">05</div>
+        <div className="idx">04</div>
         <div className="ttl">PROBES</div>
         <div className="hmeta">
           <span className="lbl">

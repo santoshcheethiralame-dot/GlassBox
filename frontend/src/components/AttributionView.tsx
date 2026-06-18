@@ -42,7 +42,7 @@ export function AttributionView({ model }: { model: string }) {
   return (
     <section className="mod adv">
       <div className="mod-head">
-        <div className="idx">08</div>
+        <div className="idx">09</div>
         <div className="ttl">CONTEXT ATTRIBUTION</div>
         <div className="hmeta">
           <span className="lbl">

@@ -22,7 +22,7 @@ export function ExperimentView({ model }: { model: string }) {
   return (
     <section className="mod adv">
       <div className="mod-head">
-        <div className="idx">09</div>
+        <div className="idx">10</div>
         <div className="ttl">HALLUCINATION LAB</div>
         <div className="hmeta">
           <span className="lbl">

@@ -8,6 +8,9 @@ import { AttributionView } from './components/AttributionView'
 import { ExperimentView } from './components/ExperimentView'
 import { NeuronView } from './components/NeuronView'
 import { SaeView } from './components/SaeView'
+import { InterveneView, type InterveneTarget } from './components/InterveneView'
+import { ACTS, SideNav, ActHeader } from './components/Acts'
+import { Figure } from './components/Figure'
 import { getHealth, getModels, runForward, runTrajectory } from './api'
 import type { ForwardResponse, HealthResponse, ModelInfo, TrajectoryResponse } from './types'
 
@@ -22,6 +25,8 @@ export default function App() {
   const [fwd, setFwd] = useState<ForwardResponse | null>(null)
   const [traj, setTraj] = useState<TrajectoryResponse | null>(null)
   const [focus, setFocus] = useState<number | null>(null)
+  const [target, setTarget] = useState<InterveneTarget | null>(null)
+  const [activeAct, setActiveAct] = useState('observe')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,6 +38,7 @@ export default function App() {
     setError(null)
     setFocus(null)
     setTraj(null)
+    setTarget(null)
     try {
       const [f, t] = await Promise.all([runForward(q), runTrajectory(q)])
       setFwd(f)
@@ -52,6 +58,27 @@ export default function App() {
       .then(setModels)
       .catch(() => setModels([]))
     run(DEFAULT_PROMPT)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    setTarget(null)
+  }, [model])
+
+  useEffect(() => {
+    const els = ACTS.map((a) => document.getElementById(a.id)).filter(Boolean) as HTMLElement[]
+    if (!els.length) return
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const vis = entries.filter((e) => e.isIntersecting)
+        if (!vis.length) return
+        vis.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        setActiveAct(vis[0].target.id)
+      },
+      { rootMargin: '-120px 0px -72% 0px', threshold: 0 },
+    )
+    els.forEach((el) => obs.observe(el))
+    return () => obs.disconnect()
   }, [])
 
   return (
@@ -65,7 +92,7 @@ export default function App() {
             <i />
           </span>
           <span className="nm">GLASSBOX</span>
-          <span className="ver">v2</span>
+          <span className="ver">v3</span>
         </div>
         <div className="prompt-zone">
           <span className="lbl tag">prompt /</span>
@@ -116,78 +143,121 @@ export default function App() {
         </div>
       </header>
 
-      <main className="page">
-        <span className="crop tl" />
-        <span className="crop tr" />
-        <span className="crop bl" />
-        <span className="crop br" />
+      <div className="body">
+        <SideNav active={activeAct} />
 
-        <section className="hero">
-          <div className="hero-top">
-            <div className="hero-tt">
-              <span className="bq" />
-              <h1>
-                INTERPRETABILITY ENGINE
-                <small>FEATURES · INTERVENTIONS · CAUSAL ATTRIBUTION</small>
-              </h1>
+        <main className="page">
+          <span className="crop tl" />
+          <span className="crop tr" />
+          <span className="crop bl" />
+          <span className="crop br" />
+
+          <section className="hero">
+            <div className="hero-top">
+              <div className="hero-tt">
+                <span className="bq" />
+                <h1>
+                  INTERPRETABILITY ENGINE
+                  <small>FEATURES · INTERVENTIONS · CAUSAL ATTRIBUTION</small>
+                </h1>
+              </div>
+              <div className="echo">
+                <div className="lbl">active prompt · {fwd ? fwd.tokens.length : '—'} tokens</div>
+                <div className="q">"{prompt}"</div>
+              </div>
             </div>
-            <div className="echo">
-              <div className="lbl">active prompt · {fwd ? fwd.tokens.length : '—'} tokens</div>
-              <div className="q">"{prompt}"</div>
+            <div className="stat-row">
+              <div className="stat">
+                <div className="v">{health ? health.n_layers : 12}</div>
+                <div className="k lbl">layers</div>
+              </div>
+              <div className="stat">
+                <div className="v">{health ? health.n_heads : 12}</div>
+                <div className="k lbl">heads / layer</div>
+              </div>
+              <div className="stat accent">
+                <div className="v">{health ? health.d_model : 768}</div>
+                <div className="k lbl">d_model</div>
+              </div>
+              <div className="stat">
+                <div className="v">3072</div>
+                <div className="k lbl">d_mlp</div>
+              </div>
+              <div className="stat">
+                <div className="v">50K</div>
+                <div className="k lbl">vocab</div>
+              </div>
             </div>
+          </section>
+
+          {error && (
+            <div className="mod">
+              <div className="mod-body err">⚠ {error}</div>
+            </div>
+          )}
+
+          <ActHeader act={ACTS[0]} />
+          {fwd && (
+            <Figure name="01-tokenization">
+              <Tokens
+                tokens={fwd.tokens}
+                preds={fwd.top_predictions}
+                focus={focus}
+                onFocus={setFocus}
+              />
+            </Figure>
+          )}
+          {fwd && (
+            <Figure name="02-attention">
+              <AttentionView data={fwd} focus={focus} onFocus={setFocus} />
+            </Figure>
+          )}
+          <div className="split">
+            <Figure name="03-residual">
+              <ResidualView traj={traj} focus={focus} />
+            </Figure>
+            <Figure name="04-probes">
+              <ProbeView />
+            </Figure>
           </div>
-          <div className="stat-row">
-            <div className="stat">
-              <div className="v">{health ? health.n_layers : 12}</div>
-              <div className="k lbl">layers</div>
-            </div>
-            <div className="stat">
-              <div className="v">{health ? health.n_heads : 12}</div>
-              <div className="k lbl">heads / layer</div>
-            </div>
-            <div className="stat accent">
-              <div className="v">{health ? health.d_model : 768}</div>
-              <div className="k lbl">d_model</div>
-            </div>
-            <div className="stat">
-              <div className="v">3072</div>
-              <div className="k lbl">d_mlp</div>
-            </div>
-            <div className="stat">
-              <div className="v">50K</div>
-              <div className="k lbl">vocab</div>
-            </div>
-          </div>
-        </section>
 
-        {error && (
-          <div className="mod">
-            <div className="mod-body err">⚠ {error}</div>
-          </div>
-        )}
+          <ActHeader act={ACTS[1]} />
+          <Figure name="05-sae-features">
+            <SaeView
+              prompt={applied}
+              model={model}
+              selectedFeature={target?.feature ?? null}
+              onSelect={setTarget}
+            />
+          </Figure>
+          <Figure name="06-neurons">
+            <NeuronView />
+          </Figure>
 
-        {fwd && (
-          <Tokens tokens={fwd.tokens} preds={fwd.top_predictions} focus={focus} onFocus={setFocus} />
-        )}
-        {fwd && <AttentionView data={fwd} focus={focus} onFocus={setFocus} />}
+          <ActHeader act={ACTS[2]} />
+          <Figure name="07-intervene">
+            <InterveneView target={target} prompt={applied} model={model} />
+          </Figure>
 
-        <SaeView prompt={applied} model={model} />
+          <ActHeader act={ACTS[3]} />
+          <Figure name="08-patching">
+            <PatchingView />
+          </Figure>
+          <Figure name="09-attribution">
+            <AttributionView model={model} />
+          </Figure>
 
-        <div className="split">
-          <ResidualView traj={traj} focus={focus} />
-          <ProbeView />
-        </div>
+          <ActHeader act={ACTS[4]} />
+          <Figure name="10-hallucination-lab">
+            <ExperimentView model={model} />
+          </Figure>
 
-        <PatchingView />
-        <NeuronView />
-        <AttributionView model={model} />
-        <ExperimentView model={model} />
-
-        <footer className="colophon">
-          <span>GLASSBOX // GPT-2 INTERPRETABILITY ENGINE</span>
-          <span>TRANSFORMERLENS · FASTAPI</span>
-        </footer>
-      </main>
+          <footer className="colophon">
+            <span>GLASSBOX // INTERPRETABILITY ENGINE</span>
+            <span>TRANSFORMERLENS · FASTAPI</span>
+          </footer>
+        </main>
+      </div>
     </div>
   )
 }
