@@ -11,9 +11,10 @@ from interp import run_forward, run_patching
 from model import MODEL_NAME, get_model, list_models
 from neurons import neuron_detail, scan_layer
 from probing import list_concepts, run_probes
-from saes import has_sae, labels_for, sae_features, sae_info
+from saes import has_sae, intervene, labels_for, sae_features, sae_info
 from schemas import (
     ForwardRequest,
+    InterveneRequest,
     PatchRequest,
     ProbeRequest,
     SaeFeaturesRequest,
@@ -106,6 +107,13 @@ def sae_features_route(req: SaeFeaturesRequest) -> dict:
 @app.post("/api/sae/labels")
 def sae_labels_route(req: SaeLabelsRequest) -> dict:
     return labels_for(req.model_key, req.layer, req.indices)
+
+
+@app.post("/api/sae/intervene")
+def sae_intervene_route(req: InterveneRequest) -> dict:
+    return intervene(
+        req.prompt, req.layer, req.feature, req.mode, req.coeff, req.top_k, model_key=req.model_key
+    )
 
 
 _static = os.path.join(os.path.dirname(__file__), "static")

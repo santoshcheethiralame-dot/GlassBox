@@ -2,6 +2,7 @@ import type {
   ConceptInfo,
   ForwardResponse,
   HealthResponse,
+  InterveneResponse,
   ModelInfo,
   NeuronDetail,
   NeuronScanResponse,
@@ -120,5 +121,25 @@ export function getSaeLabels(
     model_key: model,
     layer,
     indices,
+  })
+}
+
+export interface InterveneInput {
+  prompt: string
+  layer: number
+  feature: number
+  mode: 'ablate' | 'steer'
+  coeff: number
+  model: string
+}
+
+export function runIntervene(input: InterveneInput): Promise<InterveneResponse> {
+  return postJSON<InterveneResponse>('/sae/intervene', {
+    prompt: input.prompt,
+    layer: input.layer,
+    feature: input.feature,
+    mode: input.mode,
+    coeff: input.coeff,
+    model_key: input.model,
   })
 }

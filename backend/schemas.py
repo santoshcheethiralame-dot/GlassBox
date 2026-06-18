@@ -37,3 +37,13 @@ class SaeLabelsRequest(BaseModel):
     layer: int = Field(0, ge=0)
     indices: list[int] = Field(default_factory=list)
     model_key: str = Field("gpt2")
+
+
+class InterveneRequest(BaseModel):
+    prompt: str = Field(..., min_length=1)
+    layer: int = Field(0, ge=0)
+    feature: int = Field(..., ge=0)
+    mode: str = Field("ablate")
+    coeff: float = Field(8.0)
+    top_k: int = Field(10, ge=1, le=30)
+    model_key: str = Field("gpt2")

@@ -3,6 +3,7 @@ from __future__ import annotations
 import threading
 
 import requests
+from fastapi import HTTPException
 
 from model import get_model, synchronized
 
@@ -125,4 +126,62 @@ def sae_features(prompt: str, layer: int, top_k: int = 12, model_key: str = "gpt
         "pt_it_caveat": SAE_SPECS[model_key]["pt_it_caveat"],
         "tokens": str_tokens,
         "features": per_token,
+    }
+
+
+@synchronized
+def intervene(prompt, layer, feature, mode="ablate", coeff=8.0, top_k=10, model_key="gpt2"):
+    model = get_model(model_key)
+    sae = get_sae(model_key, layer)
+    if feature < 0 or feature >= sae.cfg.d_sae:
+        raise HTTPException(status_code=400, detail=f"feature must be 0..{sae.cfg.d_sae - 1}")
+    hook = _hook_name(sae)
+    sdtype = next(sae.parameters()).dtype
+    w_dec = sae.W_dec[feature]
+    tokens = model.to_tokens(prompt)
+    str_tokens = model.to_str_tokens(prompt)
+
+    base_logits_full, cache = model.run_with_cache(tokens, names_filter=lambda n: n == hook)
+    base_logits = base_logits_full[0, -1]
+    feat_acts = sae.encode(cache[hook].to(sdtype))[0, :, feature]
+
+    def edit(resid, hook):
+        if mode == "steer":
+            return resid + (coeff * w_dec).to(resid.dtype)
+        acts = sae.encode(resid.to(sdtype))
+        return resid - (acts[..., feature : feature + 1] * w_dec).to(resid.dtype)
+
+    int_logits = model.run_with_hooks(tokens, fwd_hooks=[(hook, edit)])[0, -1]
+
+    base_probs = base_logits.softmax(dim=-1)
+    int_probs = int_logits.softmax(dim=-1)
+
+    def top(logits, probs):
+        return [
+            {"token": model.tokenizer.decode([i]), "logit": round(float(logits[i]), 3), "prob": round(float(probs[i]), 5)}
+            for i in logits.topk(top_k).indices.tolist()
+        ]
+
+    union = list(dict.fromkeys(base_logits.topk(top_k).indices.tolist() + int_logits.topk(top_k).indices.tolist()))
+    deltas = [
+        {
+            "token": model.tokenizer.decode([i]),
+            "base": round(float(base_logits[i]), 3),
+            "delta": round(float(int_logits[i] - base_logits[i]), 3),
+        }
+        for i in union
+    ]
+    deltas.sort(key=lambda d: -abs(d["delta"]))
+
+    return {
+        "model": model_key,
+        "layer": layer,
+        "feature": feature,
+        "mode": mode,
+        "coeff": coeff,
+        "tokens": str_tokens,
+        "feature_acts": [round(float(x), 3) for x in feat_acts.tolist()],
+        "baseline": top(base_logits, base_probs),
+        "intervened": top(int_logits, int_probs),
+        "deltas": deltas[:12],
     }

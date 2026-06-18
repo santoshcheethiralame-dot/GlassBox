@@ -125,3 +125,28 @@ export interface SaeFeaturesResponse {
   tokens: string[]
   features: SaeFeature[][]
 }
+
+export interface Prediction {
+  token: string
+  logit: number
+  prob: number
+}
+
+export interface FeatureDelta {
+  token: string
+  base: number
+  delta: number
+}
+
+export interface InterveneResponse {
+  model: string
+  layer: number
+  feature: number
+  mode: string
+  coeff: number
+  tokens: string[]
+  feature_acts: number[]
+  baseline: Prediction[]
+  intervened: Prediction[]
+  deltas: FeatureDelta[]
+}
