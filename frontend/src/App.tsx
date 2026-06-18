@@ -27,6 +27,7 @@ export default function App() {
   const [focus, setFocus] = useState<number | null>(null)
   const [target, setTarget] = useState<InterveneTarget | null>(null)
   const [activeAct, setActiveAct] = useState('observe')
+  const [progress, setProgress] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -66,19 +67,47 @@ export default function App() {
   }, [model])
 
   useEffect(() => {
-    const els = ACTS.map((a) => document.getElementById(a.id)).filter(Boolean) as HTMLElement[]
-    if (!els.length) return
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const vis = entries.filter((e) => e.isIntersecting)
-        if (!vis.length) return
-        vis.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-        setActiveAct(vis[0].target.id)
-      },
-      { rootMargin: '-120px 0px -72% 0px', threshold: 0 },
-    )
-    els.forEach((el) => obs.observe(el))
-    return () => obs.disconnect()
+    let raf = 0
+    const onMove = (e: MouseEvent) => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
+        const root = document.documentElement.style
+        root.setProperty('--mx', ((e.clientX / window.innerWidth) * 100).toFixed(1) + '%')
+        root.setProperty('--my', ((e.clientY / window.innerHeight) * 100).toFixed(1) + '%')
+      })
+    }
+    window.addEventListener('mousemove', onMove)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [])
+
+  useEffect(() => {
+    let raf = 0
+    const onScroll = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
+        const doc = document.documentElement
+        const max = doc.scrollHeight - doc.clientHeight
+        setProgress(max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0)
+        let cur = ACTS[0].id
+        for (const a of ACTS) {
+          const el = document.getElementById(a.id)
+          if (el && el.getBoundingClientRect().top <= 160) cur = a.id
+        }
+        if (doc.scrollTop + doc.clientHeight >= doc.scrollHeight - 4) cur = ACTS[ACTS.length - 1].id
+        setActiveAct(cur)
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
   }, [])
 
   return (
@@ -144,7 +173,12 @@ export default function App() {
       </header>
 
       <div className="body">
-        <SideNav active={activeAct} />
+        <SideNav
+          active={activeAct}
+          progress={progress}
+          tokens={fwd ? fwd.tokens.length : 0}
+          model={model}
+        />
 
         <main className="page">
           <span className="crop tl" />
