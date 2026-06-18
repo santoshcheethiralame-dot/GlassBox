@@ -13,7 +13,7 @@ from interp import run_forward, run_patching
 from model import MODEL_NAME, get_model, list_models
 from neurons import neuron_detail, scan_layer
 from probing import list_concepts, run_probes
-from saes import has_sae, intervene, labels_for, sae_features, sae_info
+from saes import feature_track, has_sae, intervene, labels_for, sae_features, sae_info
 from schemas import (
     AttributeRequest,
     ExperimentRequest,
@@ -23,6 +23,7 @@ from schemas import (
     ProbeRequest,
     SaeFeaturesRequest,
     SaeLabelsRequest,
+    SaeTrackRequest,
     TrajectoryRequest,
 )
 from trajectory import run_trajectory
@@ -111,6 +112,11 @@ def sae_features_route(req: SaeFeaturesRequest) -> dict:
 @app.post("/api/sae/labels")
 def sae_labels_route(req: SaeLabelsRequest) -> dict:
     return labels_for(req.model_key, req.layer, req.indices)
+
+
+@app.post("/api/sae/track")
+def sae_track_route(req: SaeTrackRequest) -> dict:
+    return feature_track(req.prompt, req.layer, req.feature, model_key=req.model_key)
 
 
 @app.post("/api/sae/intervene")

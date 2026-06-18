@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
+import os
 import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 from fastapi import HTTPException
@@ -29,6 +32,33 @@ SAE_SPECS = {
 _saes: dict = {}
 _sae_load_lock = threading.Lock()
 _labels: dict = {}
+_labels_file = os.path.join(os.path.dirname(__file__), ".np_labels.json")
+_labels_save_lock = threading.Lock()
+_features_cache: dict = {}
+_FEATURES_CACHE_MAX = 96
+
+
+def _load_labels() -> None:
+    try:
+        with open(_labels_file, encoding="utf-8") as f:
+            for k, v in json.load(f).items():
+                m, s, i = k.split("|")
+                _labels[(m, s, int(i))] = v
+    except (OSError, ValueError):
+        pass
+
+
+def _save_labels() -> None:
+    with _labels_save_lock:
+        try:
+            flat = {f"{m}|{s}|{i}": v for (m, s, i), v in _labels.items()}
+            with open(_labels_file, "w", encoding="utf-8") as f:
+                json.dump(flat, f)
+        except OSError:
+            pass
+
+
+_load_labels()
 
 
 def has_sae(model_key: str) -> bool:
@@ -95,11 +125,22 @@ def label(model_key: str, layer: int, index: int):
 
 
 def labels_for(model_key: str, layer: int, indices: list[int]) -> dict:
-    return {str(int(i)): label(model_key, layer, int(i)) for i in indices}
+    spec = SAE_SPECS[model_key]
+    source = spec["np_source"].format(layer=layer)
+    idxs = [int(i) for i in indices]
+    todo = [i for i in idxs if (spec["np_model"], source, i) not in _labels]
+    if todo:
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            list(ex.map(lambda i: label(model_key, layer, i), todo))
+        _save_labels()
+    return {str(i): _labels.get((spec["np_model"], source, i)) for i in idxs}
 
 
 @synchronized
 def sae_features(prompt: str, layer: int, top_k: int = 12, model_key: str = "gpt2") -> dict:
+    ckey = (model_key, layer, top_k, prompt)
+    if ckey in _features_cache:
+        return _features_cache[ckey]
     model = get_model(model_key)
     sae = get_sae(model_key, layer)
     hook = _hook_name(sae)
@@ -118,14 +159,46 @@ def sae_features(prompt: str, layer: int, top_k: int = 12, model_key: str = "gpt
                 if float(v) > 0
             ]
         )
-    return {
+    spec = SAE_SPECS[model_key]
+    result = {
         "model": model_key,
         "layer": layer,
         "hook": hook,
         "d_sae": int(acts.shape[1]),
-        "pt_it_caveat": SAE_SPECS[model_key]["pt_it_caveat"],
+        "pt_it_caveat": spec["pt_it_caveat"],
+        "np_model": spec["np_model"],
+        "np_source": spec["np_source"].format(layer=layer),
         "tokens": str_tokens,
         "features": per_token,
+    }
+    if len(_features_cache) >= _FEATURES_CACHE_MAX:
+        _features_cache.clear()
+    _features_cache[ckey] = result
+    return result
+
+
+@synchronized
+def feature_track(prompt: str, layer: int, feature: int, model_key: str = "gpt2") -> dict:
+    model = get_model(model_key)
+    sae = get_sae(model_key, layer)
+    if feature < 0 or feature >= sae.cfg.d_sae:
+        raise HTTPException(status_code=400, detail=f"feature must be 0..{sae.cfg.d_sae - 1}")
+    hook = _hook_name(sae)
+    sdtype = next(sae.parameters()).dtype
+    tokens = model.to_tokens(prompt)
+    str_tokens = model.to_str_tokens(prompt)
+    _, cache = model.run_with_cache(tokens, names_filter=lambda n: n == hook)
+    acts = sae.encode(cache[hook].to(sdtype))[0, :, feature]
+    spec = SAE_SPECS[model_key]
+    return {
+        "model": model_key,
+        "layer": layer,
+        "feature": feature,
+        "np_model": spec["np_model"],
+        "np_source": spec["np_source"].format(layer=layer),
+        "label": label(model_key, layer, feature),
+        "tokens": str_tokens,
+        "acts": [round(float(x), 3) for x in acts.tolist()],
     }
 
 

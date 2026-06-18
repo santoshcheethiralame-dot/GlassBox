@@ -12,6 +12,7 @@ import type {
   ProbeResponse,
   SaeFeaturesResponse,
   SaeInfo,
+  SaeTrackResponse,
   TrajectoryResponse,
 } from './types'
 
@@ -124,6 +125,15 @@ export function getSaeLabels(
     layer,
     indices,
   })
+}
+
+export function runSaeTrack(
+  prompt: string,
+  layer: number,
+  feature: number,
+  model: string,
+): Promise<SaeTrackResponse> {
+  return postJSON<SaeTrackResponse>('/sae/track', { prompt, layer, feature, model_key: model })
 }
 
 export interface InterveneInput {

@@ -39,6 +39,13 @@ class SaeLabelsRequest(BaseModel):
     model_key: str = Field("gpt2")
 
 
+class SaeTrackRequest(BaseModel):
+    prompt: str = Field(..., min_length=1)
+    layer: int = Field(0, ge=0)
+    feature: int = Field(..., ge=0)
+    model_key: str = Field("gpt2")
+
+
 class InterveneRequest(BaseModel):
     prompt: str = Field(..., min_length=1)
     layer: int = Field(0, ge=0)

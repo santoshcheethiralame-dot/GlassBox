@@ -337,3 +337,12 @@ svg { display: block; }
 .fig-export { position: absolute; top: 12px; right: 14px; z-index: 20; background: var(--panel2); color: var(--dim); border: 2px solid var(--line); height: 28px; padding: 0 11px; font: 800 10px var(--mono); letter-spacing: 1px; cursor: pointer; opacity: 0; transition: opacity 0.15s, background 0.15s, color 0.15s; }
 .figure:hover .fig-export { opacity: 1; }
 .fig-export:hover { background: var(--acc); color: #07080c; border-color: var(--acc); }
+
+/* ── SAE: feature search + Neuronpedia link ──────────────────── */
+.feat-search { display: inline-flex; align-items: center; }
+.feat-search input { width: 96px; border: 2px solid var(--line); background: var(--panel2); color: var(--strong); height: 38px; padding: 0 10px; font: 600 12px var(--mono); outline: none; }
+.feat-search input:focus { border-color: var(--acc); }
+.feat-search button { height: 38px; border: 2px solid var(--line); border-left: none; background: var(--panel2); color: var(--text); font: 800 10px var(--mono); letter-spacing: 1px; padding: 0 13px; cursor: pointer; }
+.feat-search button:hover { background: var(--acc); color: #07080c; border-color: var(--acc); }
+.np-link { flex: none; width: 24px; text-align: center; color: var(--dim); text-decoration: none; font-weight: 800; font-size: 14px; line-height: 20px; border: 1.5px solid transparent; }
+.np-link:hover { color: var(--acc); border-color: var(--acc); }

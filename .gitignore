@@ -9,6 +9,7 @@ frontend/.vite/
 *.db
 *.sqlite
 data/cache/
+.np_labels.json
 .env
 *.log
 .DS_Store

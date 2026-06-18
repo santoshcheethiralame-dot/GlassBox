@@ -122,8 +122,21 @@ export interface SaeFeaturesResponse {
   hook: string
   d_sae: number
   pt_it_caveat: boolean
+  np_model?: string
+  np_source?: string
   tokens: string[]
   features: SaeFeature[][]
+}
+
+export interface SaeTrackResponse {
+  model: string
+  layer: number
+  feature: number
+  np_model: string
+  np_source: string
+  label: string | null
+  tokens: string[]
+  acts: number[]
 }
 
 export interface Prediction {

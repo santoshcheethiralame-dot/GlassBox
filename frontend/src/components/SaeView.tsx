@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getSaeInfo, getSaeLabels, runSaeFeatures } from '../api'
+import { getSaeInfo, getSaeLabels, runSaeFeatures, runSaeTrack } from '../api'
 import type { SaeFeaturesResponse, SaeInfo } from '../types'
 import { cleanToken } from '../util'
 import type { InterveneTarget } from './InterveneView'
@@ -22,6 +22,9 @@ export function SaeView({
   const [labels, setLabels] = useState<Record<string, string | null>>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [track, setTrack] = useState<number[] | null>(null)
+  const [trackLabel, setTrackLabel] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     getSaeInfo(model)
@@ -57,11 +60,49 @@ export function SaeView({
       .catch(() => undefined)
   }, [data, sel, model])
 
+  useEffect(() => {
+    if (selectedFeature == null || !data) {
+      setTrack(null)
+      setTrackLabel(null)
+      return
+    }
+    let live = true
+    runSaeTrack(prompt, data.layer, selectedFeature, model)
+      .then((r) => {
+        if (!live) return
+        setTrack(r.acts)
+        setTrackLabel(r.label)
+      })
+      .catch(() => {
+        if (live) {
+          setTrack(null)
+          setTrackLabel(null)
+        }
+      })
+    return () => {
+      live = false
+    }
+  }, [selectedFeature, data, prompt, model])
+
   if (!info) return null
 
   const nLayers = info.n_layers || 12
   const feats = data && sel != null ? data.features[sel] || [] : []
   const maxAct = feats.reduce((m, f) => Math.max(m, f.act), 0) || 1
+  const trackMax = track ? track.reduce((m, a) => Math.max(m, a), 0) || 1 : 1
+  const tintable = !!(data && track && track.length === data.tokens.length && trackMax > 0)
+
+  const npUrl = (idx: number) =>
+    data?.np_model && data?.np_source
+      ? `https://www.neuronpedia.org/${data.np_model}/${data.np_source}/${idx}`
+      : null
+
+  const inspect = () => {
+    const idx = parseInt(search, 10)
+    if (!Number.isNaN(idx) && data && idx >= 0 && idx < data.d_sae) {
+      onSelect({ layer: data.layer, feature: idx, label: labels[String(idx)] ?? null })
+    }
+  }
 
   return (
     <section className="mod adv">
@@ -94,8 +135,22 @@ export function SaeView({
                 <span className="v">L{String(layer).padStart(2, '0')}</span>
                 <button onClick={() => setLayer((layer + 1) % nLayers)}>▶</button>
               </span>
+              <span className="feat-search">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  spellCheck={false}
+                  placeholder="feature #"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value.replace(/[^0-9]/g, ''))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') inspect()
+                  }}
+                />
+                <button onClick={inspect}>INSPECT</button>
+              </span>
               <span className="lbl" style={{ marginLeft: 'auto' }}>
-                click a token, then a feature → send to INTERVENE
+                click a token, then a feature → INTERVENE
               </span>
             </div>
 
@@ -114,12 +169,35 @@ export function SaeView({
               <>
                 <div className="tokens">
                   {data.tokens.map((t, i) => (
-                    <div key={i} className={`tk ${i === sel ? 'sel' : ''}`} onClick={() => setSel(i)}>
+                    <div
+                      key={i}
+                      className={`tk ${i === sel ? 'sel' : ''}`}
+                      onClick={() => setSel(i)}
+                      style={
+                        tintable
+                          ? {
+                              boxShadow: `inset 0 -5px 0 0 rgba(46, 230, 166, ${(
+                                track![i] / trackMax
+                              ).toFixed(3)})`,
+                            }
+                          : undefined
+                      }
+                    >
                       <span className="t">{cleanToken(t)}</span>
                       <span className="i">{(data.features[i]?.[0]?.act ?? 0).toFixed(1)}</span>
                     </div>
                   ))}
                 </div>
+
+                {tintable && selectedFeature != null && (
+                  <div
+                    className="lbl"
+                    style={{ marginTop: 8, textTransform: 'none', letterSpacing: '0.3px' }}
+                  >
+                    strip tinted by <b style={{ color: 'var(--acc)' }}>f/{selectedFeature}</b> activity
+                    {trackLabel ? ` · ${trackLabel}` : ''}
+                  </div>
+                )}
 
                 <div className="featlist">
                   <div className="lbl" style={{ marginBottom: 4 }}>
@@ -144,6 +222,18 @@ export function SaeView({
                       </span>
                       <span className="fact">{f.act.toFixed(2)}</span>
                       <span className="flabel">{labels[String(f.index)] ?? '…'}</span>
+                      {npUrl(f.index) && (
+                        <a
+                          className="np-link"
+                          href={npUrl(f.index)!}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          title="open this feature on Neuronpedia"
+                        >
+                          ↗
+                        </a>
+                      )}
                     </div>
                   ))}
                 </div>
