@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import threading
 
 import torch
@@ -21,6 +22,7 @@ MODELS = {
             "center_writing_weights": False,
             "center_unembed": False,
         },
+        "low_mem": True,
     },
 }
 
@@ -51,10 +53,24 @@ def get_model(key: str = DEFAULT_MODEL) -> HookedTransformer:
                 opts = dict(spec["kwargs"])
                 if spec["dtype"] is not None:
                     opts["dtype"] = spec["dtype"]
-                model = HookedTransformer.from_pretrained(
-                    spec["tl_name"], device=spec["device"], **opts
-                )
+                if spec.get("low_mem"):
+                    from transformers import AutoModelForCausalLM
+
+                    hf = AutoModelForCausalLM.from_pretrained(
+                        spec["tl_name"], torch_dtype=spec["dtype"], low_cpu_mem_usage=True
+                    )
+                    model = HookedTransformer.from_pretrained(
+                        spec["tl_name"], hf_model=hf, device=spec["device"], **opts
+                    )
+                    del hf
+                    gc.collect()
+                else:
+                    model = HookedTransformer.from_pretrained(
+                        spec["tl_name"], device=spec["device"], **opts
+                    )
                 model.eval()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
                 _models[key] = model
     return _models[key]
 
