@@ -178,6 +178,7 @@ export default function App() {
           progress={progress}
           tokens={fwd ? fwd.tokens.length : 0}
           model={model}
+          prompt={applied}
         />
 
         <main className="page">

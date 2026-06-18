@@ -176,7 +176,7 @@ export function SaeView({
                       style={
                         tintable
                           ? {
-                              boxShadow: `inset 0 -5px 0 0 rgba(46, 230, 166, ${(
+                              boxShadow: `inset 0 -5px 0 0 rgba(255, 162, 77, ${(
                                 track![i] / trackMax
                               ).toFixed(3)})`,
                             }

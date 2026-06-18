@@ -4,16 +4,16 @@ import type { TrajectoryResponse } from '../types'
 
 /* Monochromatic mint palette (mints, teals, warm greys) */
 const PALETTE = [
-  '#2ee6a6', // acc mint
-  '#5ff0c2', // light mint
-  '#1fbf88', // deep mint
-  '#7fe6d2', // pale aqua
-  '#3fd6c0', // teal
+  '#ffa24d', // acc amber
+  '#ffc488', // light amber
+  '#e07d28', // deep amber
+  '#ffd8b0', // pale peach
+  '#f0a85e', // soft orange
   '#d6d3c6', // text (warm grey)
-  '#8fd6b8', // sage
-  '#1f9e7e', // pine
-  '#b3f0d8', // mint cream
-  '#8a8f84', // grey-green
+  '#f5b878', // sand
+  '#c46a1e', // burnt
+  '#ffe6cc', // cream
+  '#9a8f80', // warm grey
 ]
 
 function tokenColor(index: number, _total: number): string {
