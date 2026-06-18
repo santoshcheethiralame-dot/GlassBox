@@ -47,3 +47,12 @@ class InterveneRequest(BaseModel):
     coeff: float = Field(8.0)
     top_k: int = Field(10, ge=1, le=30)
     model_key: str = Field("gpt2")
+
+
+class AttributeRequest(BaseModel):
+    clean_prompt: str = Field(..., min_length=1)
+    corrupted_prompt: str = Field(..., min_length=1)
+    answer: str = Field(..., min_length=1)
+    corrupted_answer: str = Field(..., min_length=1)
+    method: str = Field("attribution")
+    model_key: str = Field("gpt2")

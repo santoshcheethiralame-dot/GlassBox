@@ -227,3 +227,9 @@ svg { display: block; }
 .prow:last-child { border-bottom: none; }
 .prow .pt { font-weight: 700; white-space: pre; color: var(--strong); overflow: hidden; text-overflow: ellipsis; }
 .prow .pl { color: var(--dim); flex: none; }
+
+.attrib-meta { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 4px 0 16px; font-size: 12px; }
+.attrib-meta b { color: var(--strong); font-weight: 800; }
+.attrib-toks { display: flex; flex-wrap: wrap; gap: 5px; }
+.atok { padding: 8px 10px; border: 2px solid var(--line); font-size: 15px; font-weight: 600; white-space: pre; color: var(--strong); cursor: default; }
+.atok.diff { border-color: var(--strong); }

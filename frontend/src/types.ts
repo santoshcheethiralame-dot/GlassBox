@@ -150,3 +150,15 @@ export interface InterveneResponse {
   intervened: Prediction[]
   deltas: FeatureDelta[]
 }
+
+export interface AttributeResponse {
+  model: string
+  method: string
+  tokens: string[]
+  corrupted_tokens: string[]
+  answer: string
+  corrupted_answer: string
+  logit_diff_clean: number
+  logit_diff_corrupted: number
+  attribution: number[]
+}

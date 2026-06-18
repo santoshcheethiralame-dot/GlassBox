@@ -7,12 +7,14 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from attribution import attribute
 from interp import run_forward, run_patching
 from model import MODEL_NAME, get_model, list_models
 from neurons import neuron_detail, scan_layer
 from probing import list_concepts, run_probes
 from saes import has_sae, intervene, labels_for, sae_features, sae_info
 from schemas import (
+    AttributeRequest,
     ForwardRequest,
     InterveneRequest,
     PatchRequest,
@@ -113,6 +115,18 @@ def sae_labels_route(req: SaeLabelsRequest) -> dict:
 def sae_intervene_route(req: InterveneRequest) -> dict:
     return intervene(
         req.prompt, req.layer, req.feature, req.mode, req.coeff, req.top_k, model_key=req.model_key
+    )
+
+
+@app.post("/api/attribute")
+def attribute_route(req: AttributeRequest) -> dict:
+    return attribute(
+        req.clean_prompt,
+        req.corrupted_prompt,
+        req.answer,
+        req.corrupted_answer,
+        req.method,
+        model_key=req.model_key,
     )
 
 

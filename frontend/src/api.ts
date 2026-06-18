@@ -1,4 +1,5 @@
 import type {
+  AttributeResponse,
   ConceptInfo,
   ForwardResponse,
   HealthResponse,
@@ -140,6 +141,26 @@ export function runIntervene(input: InterveneInput): Promise<InterveneResponse> 
     feature: input.feature,
     mode: input.mode,
     coeff: input.coeff,
+    model_key: input.model,
+  })
+}
+
+export interface AttributeInput {
+  clean_prompt: string
+  corrupted_prompt: string
+  answer: string
+  corrupted_answer: string
+  method: 'attribution' | 'activation'
+  model: string
+}
+
+export function runAttribute(input: AttributeInput): Promise<AttributeResponse> {
+  return postJSON<AttributeResponse>('/attribute', {
+    clean_prompt: input.clean_prompt,
+    corrupted_prompt: input.corrupted_prompt,
+    answer: input.answer,
+    corrupted_answer: input.corrupted_answer,
+    method: input.method,
     model_key: input.model,
   })
 }
