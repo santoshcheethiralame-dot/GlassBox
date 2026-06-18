@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from attribution import attribute
+from experiment import run_experiment
 from interp import run_forward, run_patching
 from model import MODEL_NAME, get_model, list_models
 from neurons import neuron_detail, scan_layer
@@ -15,6 +16,7 @@ from probing import list_concepts, run_probes
 from saes import has_sae, intervene, labels_for, sae_features, sae_info
 from schemas import (
     AttributeRequest,
+    ExperimentRequest,
     ForwardRequest,
     InterveneRequest,
     PatchRequest,
@@ -128,6 +130,11 @@ def attribute_route(req: AttributeRequest) -> dict:
         req.method,
         model_key=req.model_key,
     )
+
+
+@app.post("/api/experiment")
+def experiment_route(req: ExperimentRequest) -> dict:
+    return run_experiment(req.model_key, req.layer)
 
 
 _static = os.path.join(os.path.dirname(__file__), "static")

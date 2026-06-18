@@ -28,7 +28,7 @@ DEFAULT_MODEL = "gpt2"
 MODEL_NAME = "gpt2"
 
 _models: dict[str, HookedTransformer] = {}
-_locks: dict[str, threading.Lock] = {key: threading.Lock() for key in MODELS}
+_locks: dict[str, threading.RLock] = {key: threading.RLock() for key in MODELS}
 _load_lock = threading.Lock()
 LOCK = _locks[DEFAULT_MODEL]
 
@@ -66,6 +66,7 @@ def lock_for(key: str = DEFAULT_MODEL) -> threading.Lock:
 def synchronized(fn):
     def wrapper(*args, **kwargs):
         with lock_for(kwargs.get("model_key", DEFAULT_MODEL)):
-            return fn(*args, **kwargs)
+            with torch.no_grad():
+                return fn(*args, **kwargs)
 
     return wrapper

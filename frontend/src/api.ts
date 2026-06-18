@@ -1,6 +1,7 @@
 import type {
   AttributeResponse,
   ConceptInfo,
+  ExperimentResponse,
   ForwardResponse,
   HealthResponse,
   InterveneResponse,
@@ -163,4 +164,8 @@ export function runAttribute(input: AttributeInput): Promise<AttributeResponse> 
     method: input.method,
     model_key: input.model,
   })
+}
+
+export function runExperiment(model: string, layer = 7): Promise<ExperimentResponse> {
+  return postJSON<ExperimentResponse>('/experiment', { model_key: model, layer })
 }

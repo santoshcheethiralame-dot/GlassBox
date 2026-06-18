@@ -5,6 +5,7 @@ import { ResidualView } from './components/ResidualView'
 import { ProbeView } from './components/ProbeView'
 import { PatchingView } from './components/PatchingView'
 import { AttributionView } from './components/AttributionView'
+import { ExperimentView } from './components/ExperimentView'
 import { NeuronView } from './components/NeuronView'
 import { SaeView } from './components/SaeView'
 import { getHealth, getModels, runForward, runTrajectory } from './api'
@@ -179,6 +180,7 @@ export default function App() {
         <PatchingView />
         <NeuronView />
         <AttributionView model={model} />
+        <ExperimentView model={model} />
 
         <footer className="colophon">
           <span>GLASSBOX // GPT-2 INTERPRETABILITY ENGINE</span>

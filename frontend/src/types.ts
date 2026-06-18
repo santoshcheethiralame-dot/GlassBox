@@ -162,3 +162,36 @@ export interface AttributeResponse {
   logit_diff_corrupted: number
   attribution: number[]
 }
+
+export interface ExperimentRow {
+  subject: string
+  grounded: string
+  parametric: string
+  predicted: string
+  label: string
+  logit_diff: number
+  attr_peak: string | null
+  attr_peak_value: number | null
+  attr_on_context: boolean | null
+}
+
+export interface ExperimentFlip {
+  subject: string
+  grounded: string
+  parametric: string
+  feature: number
+  feature_label: string | null
+  ld_before: number
+  ld_after: number
+  shift: number
+}
+
+export interface ExperimentResponse {
+  model: string
+  layer: number
+  n_total: number
+  n_grounded: number
+  n_confabulated: number
+  rows: ExperimentRow[]
+  flip: ExperimentFlip | null
+}

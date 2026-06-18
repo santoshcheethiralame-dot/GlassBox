@@ -233,3 +233,37 @@ svg { display: block; }
 .attrib-toks { display: flex; flex-wrap: wrap; gap: 5px; }
 .atok { padding: 8px 10px; border: 2px solid var(--line); font-size: 15px; font-weight: 600; white-space: pre; color: var(--strong); cursor: default; }
 .atok.diff { border-color: var(--strong); }
+
+.exp-summary { display: flex; align-items: center; gap: 18px; margin: 18px 0 14px; font-size: 13px; flex-wrap: wrap; }
+.exp-stat { font-weight: 700; }
+.exp-stat b { font-size: 22px; font-weight: 800; margin-right: 5px; }
+.exp-stat.g b { color: var(--acc); }
+.exp-stat.c b { color: #6fa8c8; }
+.exp-rows { display: flex; flex-direction: column; gap: 7px; }
+.exp-row { display: flex; align-items: center; gap: 14px; font-size: 12px; }
+.exp-subj { width: 230px; flex: none; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exp-subj b { color: var(--strong); font-weight: 800; }
+.exp-badge { width: 104px; flex: none; text-align: center; padding: 3px 0; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border: 1.5px solid var(--line); }
+.exp-badge.grounded { color: var(--acc); border-color: var(--acc); }
+.exp-badge.confabulated { color: #6fa8c8; border-color: #6fa8c8; }
+.exp-badge.other { color: var(--dim); }
+.exp-bar { position: relative; flex: 1; min-width: 90px; height: 14px; background: var(--panel2); border: 1.5px solid var(--line); }
+.exp-axis { position: absolute; left: 50%; top: -1px; bottom: -1px; width: 1px; background: var(--dim); }
+.exp-fill { position: absolute; top: 0; bottom: 0; }
+.exp-fill.g { background: var(--acc); }
+.exp-fill.c { background: #4e96b8; }
+.exp-ld { width: 56px; flex: none; text-align: right; font-weight: 800; }
+.exp-ld.g { color: var(--acc); }
+.exp-ld.c { color: #6fa8c8; }
+
+.flip-card { margin-top: 22px; border: 2px solid var(--acc); background: rgba(255, 59, 48, 0.05); padding: 16px 18px; }
+.flip-head { font-size: 13px; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+.flip-head b { color: var(--strong); font-weight: 800; }
+.flip-action { font-size: 13px; color: var(--text); margin-bottom: 14px; }
+.flip-action b { color: var(--acc); font-weight: 800; }
+.flip-bars { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.flip-val { font-size: 26px; font-weight: 800; letter-spacing: -1px; }
+.flip-val.g { color: var(--acc); }
+.flip-val.c { color: #6fa8c8; }
+.flip-arrow { color: var(--dim); font-size: 18px; }
+.flip-shift { font-weight: 800; color: var(--strong); border: 2px solid var(--acc); padding: 4px 12px; font-size: 13px; }

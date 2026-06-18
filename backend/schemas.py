@@ -56,3 +56,8 @@ class AttributeRequest(BaseModel):
     corrupted_answer: str = Field(..., min_length=1)
     method: str = Field("attribution")
     model_key: str = Field("gpt2")
+
+
+class ExperimentRequest(BaseModel):
+    layer: int = Field(7, ge=0)
+    model_key: str = Field("gpt2")
