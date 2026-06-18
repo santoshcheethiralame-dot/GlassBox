@@ -2,6 +2,9 @@ fastapi
 uvicorn[standard]
 torch
 transformer_lens
+sae_lens
+accelerate
+requests
 numpy
 scikit-learn
 msgpack

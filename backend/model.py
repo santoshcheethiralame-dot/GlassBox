@@ -4,6 +4,7 @@ import gc
 import threading
 
 import torch
+from fastapi import HTTPException
 from transformer_lens import HookedTransformer
 
 MODELS = {
@@ -23,6 +24,7 @@ MODELS = {
             "center_unembed": False,
         },
         "low_mem": True,
+        "requires_gpu": True,
     },
 }
 
@@ -36,15 +38,22 @@ LOCK = _locks[DEFAULT_MODEL]
 
 
 def list_models() -> list[dict]:
+    cuda = torch.cuda.is_available()
     return [
         {"key": key, "name": spec["tl_name"], "device": spec["device"]}
         for key, spec in MODELS.items()
+        if cuda or not spec.get("requires_gpu")
     ]
 
 
 def get_model(key: str = DEFAULT_MODEL) -> HookedTransformer:
     if key not in MODELS:
         raise KeyError(f"unknown model {key!r}; options are {list(MODELS)}")
+    if MODELS[key].get("requires_gpu") and not torch.cuda.is_available():
+        raise HTTPException(
+            status_code=503,
+            detail=f"{key} needs a GPU; this host is CPU-only. Run the Colab/Kaggle notebook for Gemma.",
+        )
     if key not in _models:
         with _load_lock:
             if key not in _models:
