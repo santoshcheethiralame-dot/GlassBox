@@ -3,9 +3,9 @@
 :root {
   --bg: #0b0c10;
   --bg2: #0f1015;
-  --panel: #14161c;
-  --panel2: #1a1d25;
-  --band: #101218;
+  --panel: rgba(255, 255, 255, 0.035);
+  --panel2: rgba(255, 255, 255, 0.07);
+  --band: rgba(255, 255, 255, 0.045);
   --line: rgba(255, 255, 255, 0.06);
   --line2: rgba(255, 255, 255, 0.10);
   --text: #d3d6de;
@@ -139,13 +139,13 @@ input { font-family: inherit; }
 .tk:hover .t, .tk.sel .t { color: #07080c; }
 .tk .i { font-size: 9px; font-weight: 600; color: var(--dim); }
 .tk:hover .i, .tk.sel .i { color: rgba(10, 11, 15, 0.6); }
-.pred { margin-top: 22px; display: flex; align-items: stretch; border: 2px solid var(--line); }
-.pred .pl { display: flex; align-items: center; padding: 0 14px; background: var(--band); color: var(--dim); font-size: 11px; font-weight: 800; letter-spacing: 2px; writing-mode: vertical-rl; transform: rotate(180deg); }
-.pred .big { display: flex; align-items: center; font-size: 38px; font-weight: 800; letter-spacing: -1.5px; background: var(--acc); color: #07080c; padding: 0 18px; white-space: pre; }
+.pred { margin-top: 22px; display: flex; align-items: stretch; border: 1px solid var(--glass-brd); background: var(--glass2); }
+.pred .pl { display: flex; align-items: center; padding: 0 14px; color: var(--dim); font-size: 11px; font-weight: 800; letter-spacing: 2px; writing-mode: vertical-rl; transform: rotate(180deg); }
+.pred .big { display: flex; align-items: center; font-size: 38px; font-weight: 800; letter-spacing: -1.5px; background: rgba(255, 162, 77, 0.13); color: var(--acc); padding: 0 24px; white-space: pre; }
 .pred .bars { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 14px 18px; }
 .pbar { display: flex; align-items: center; gap: 10px; font-size: 12px; }
 .pbar .pt { width: 92px; font-weight: 700; white-space: pre; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
-.pbar .pf { height: 13px; background: var(--dim); min-width: 2px; }
+.pbar .pf { height: 13px; background: rgba(255, 162, 77, 0.28); min-width: 2px; }
 .pbar.first .pf { background: var(--acc); }
 .pbar .pp { color: var(--dim); width: 52px; }
 
@@ -165,7 +165,7 @@ input { font-family: inherit; }
 .head svg { width: 100%; display: block; }
 .hmwrap { overflow-x: auto; }
 svg { display: block; }
-.tooltip { position: fixed; pointer-events: none; background: var(--band); border: 2px solid var(--line2); padding: 6px 9px; font-family: var(--mono); font-size: 12px; color: var(--strong); white-space: pre-line; z-index: 80; }
+.tooltip { position: fixed; pointer-events: none; background: rgba(16, 17, 23, 0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-brd); border-radius: 10px; padding: 7px 10px; font-family: var(--mono); font-size: 12px; color: var(--strong); white-space: pre-line; z-index: 80; }
 
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
 
@@ -182,7 +182,7 @@ svg { display: block; }
 .fld span { width: 130px; flex: none; }
 .fld input { flex: 1; min-width: 0; border: 2px solid var(--line); background: var(--panel2); color: var(--strong); height: 34px; padding: 0 11px; font: 600 13px var(--mono); outline: none; }
 .fld input:focus { border-color: var(--acc); }
-.metrics { display: flex; flex-direction: column; border: 2px solid var(--line); }
+.metrics { display: flex; flex-direction: column; border: 1px solid var(--glass-brd); background: var(--glass2); }
 .mcell { padding: 16px 20px; border-bottom: 2px solid var(--line); }
 .mcell:last-child { border-bottom: none; }
 .mcell .mk { margin-bottom: 4px; }
@@ -260,7 +260,7 @@ svg { display: block; }
 .attrib-meta { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 4px 0 16px; font-size: 12px; }
 .attrib-meta b { color: var(--strong); font-weight: 800; }
 .attrib-toks { display: flex; flex-wrap: wrap; gap: 5px; }
-.atok { padding: 8px 10px; border: 2px solid var(--line); font-size: 15px; font-weight: 600; white-space: pre; color: var(--strong); cursor: default; }
+.atok { padding: 8px 12px; border: 1px solid var(--glass-brd); background: var(--glass2); font-size: 15px; font-weight: 600; white-space: pre; color: var(--strong); cursor: default; }
 .atok.diff { border-color: var(--strong); }
 
 .exp-summary { display: flex; align-items: center; gap: 18px; margin: 18px 0 14px; font-size: 13px; flex-wrap: wrap; }

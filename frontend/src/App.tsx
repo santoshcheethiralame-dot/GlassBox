@@ -115,16 +115,18 @@ export default function App() {
       <header className="masthead">
         <div className="brand">
           <span className="mark">
-            <svg
-              viewBox="0 0 28 28"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            >
-              <path d="M14 3 L24 8.5 V19.5 L14 25 L4 19.5 V8.5 Z" fill="rgba(255, 162, 77, 0.1)" />
-              <path d="M14 14 L14 25 M14 14 L4 8.5 M14 14 L24 8.5" opacity="0.85" />
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M16 3.5 L27 9.5 L16 15.5 L5 9.5 Z" fill="rgba(255, 186, 110, 0.5)" />
+              <path d="M5 9.5 L16 15.5 L16 28 L5 22 Z" fill="rgba(255, 140, 70, 0.26)" />
+              <path d="M27 9.5 L16 15.5 L16 28 L27 22 Z" fill="rgba(190, 95, 45, 0.18)" />
+              <path
+                d="M16 3.5 L27 9.5 L27 22 L16 28 L5 22 L5 9.5 Z M16 15.5 L16 28 M16 15.5 L27 9.5 M16 15.5 L5 9.5"
+                stroke="var(--acc)"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+              <path d="M8.5 8 L13.5 5.2" stroke="#ffffff" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
             </svg>
           </span>
           <span className="nm">GLASSBOX</span>
