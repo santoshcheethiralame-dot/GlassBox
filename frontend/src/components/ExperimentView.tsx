@@ -48,6 +48,9 @@ export function ExperimentView({ model }: { model: string }) {
 
         {error && <div className="err">⚠ {error}</div>}
         {loading && !data && <div className="busy">[ RUNNING THE BATCH ]</div>}
+        {!data && !loading && !error && (
+          <div className="interv-empty">◦ idle — press RUN to score a batch of conflict prompts (~10s)</div>
+        )}
 
         {data && (
           <>

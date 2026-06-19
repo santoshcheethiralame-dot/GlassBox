@@ -30,7 +30,8 @@ export function NeuronView() {
   }, [])
 
   const step = (d: number) => {
-    const l = (layer + d + 12) % 12
+    const l = Math.max(0, Math.min(11, layer + d))
+    if (l === layer) return
     setLayer(l)
     scan(l)
   }
@@ -45,9 +46,9 @@ export function NeuronView() {
             mlp_post · <b>{res ? `${res.n_sentences} seq · ${res.d_mlp} / layer` : '…'}</b>
           </span>
           <span className="stepper">
-            <button aria-label="previous layer" onClick={() => step(-1)}>◀</button>
+            <button aria-label="previous layer" disabled={layer === 0} onClick={() => step(-1)}>◀</button>
             <span className="v">L{String(layer).padStart(2, '0')}</span>
-            <button aria-label="next layer" onClick={() => step(1)}>▶</button>
+            <button aria-label="next layer" disabled={layer === 11} onClick={() => step(1)}>▶</button>
           </span>
         </div>
       </div>

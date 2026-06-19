@@ -20,11 +20,21 @@ function tokenColor(index: number, _total: number): string {
   return PALETTE[index % PALETTE.length]
 }
 
-export function ResidualView({ traj, focus }: { traj: TrajectoryResponse | null; focus: number | null }) {
+export function ResidualView({
+  traj,
+  focus,
+  error,
+}: {
+  traj: TrajectoryResponse | null
+  focus: number | null
+  error?: string | null
+}) {
   const [hover, setHover] = useState<{ t: number; p: number; x: number; y: number } | null>(null)
 
   let body
-  if (!traj) {
+  if (error && !traj) {
+    body = <div className="err">⚠ {error}</div>
+  } else if (!traj) {
     body = <div className="busy">[ COMPUTING ]</div>
   } else {
     const tr = traj.trajectories
@@ -211,7 +221,7 @@ export function ResidualView({ traj, focus }: { traj: TrajectoryResponse | null;
           })()}
         </svg>
         {hover && (
-          <div className="tooltip" style={{ left: hover.x + 14, top: hover.y + 14 }}>
+          <div className="tooltip" style={{ left: Math.min(hover.x + 14, window.innerWidth - 190), top: Math.min(hover.y + 14, window.innerHeight - 64) }}>
             <span style={{ color: tokenColor(hover.t, nTokens), fontWeight: 800 }}>
               {cleanToken(traj.tokens[hover.t])}
             </span>

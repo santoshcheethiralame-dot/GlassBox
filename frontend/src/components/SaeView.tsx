@@ -25,6 +25,7 @@ export function SaeView({
   const [track, setTrack] = useState<number[] | null>(null)
   const [trackLabel, setTrackLabel] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [searchErr, setSearchErr] = useState<string | null>(null)
 
   useEffect(() => {
     getSaeInfo(model)
@@ -110,10 +111,18 @@ export function SaeView({
       : null
 
   const inspect = () => {
+    if (!data) return
     const idx = parseInt(search, 10)
-    if (!Number.isNaN(idx) && data && idx >= 0 && idx < data.d_sae) {
-      onSelect({ layer: data.layer, feature: idx, label: labels[String(idx)] ?? null })
+    if (Number.isNaN(idx)) {
+      setSearchErr('enter a feature #')
+      return
     }
+    if (idx < 0 || idx >= data.d_sae) {
+      setSearchErr(`out of range · 0–${data.d_sae - 1}`)
+      return
+    }
+    setSearchErr(null)
+    onSelect({ layer: data.layer, feature: idx, label: labels[String(idx)] ?? null })
   }
 
   return (
@@ -143,9 +152,9 @@ export function SaeView({
             <div className="ctlbar" style={{ marginBottom: 16 }}>
               <span className="lbl">layer</span>
               <span className="stepper">
-                <button aria-label="previous layer" onClick={() => setLayer((layer - 1 + nLayers) % nLayers)}>◀</button>
+                <button aria-label="previous layer" disabled={layer === 0} onClick={() => setLayer(Math.max(0, layer - 1))}>◀</button>
                 <span className="v">L{String(layer).padStart(2, '0')}</span>
-                <button aria-label="next layer" onClick={() => setLayer((layer + 1) % nLayers)}>▶</button>
+                <button aria-label="next layer" disabled={layer === nLayers - 1} onClick={() => setLayer(Math.min(nLayers - 1, layer + 1))}>▶</button>
               </span>
               <span className="feat-search">
                 <input
@@ -154,13 +163,17 @@ export function SaeView({
                   spellCheck={false}
                   placeholder="feature #"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value.replace(/[^0-9]/g, ''))}
+                  onChange={(e) => {
+                    setSearch(e.target.value.replace(/[^0-9]/g, ''))
+                    if (searchErr) setSearchErr(null)
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') inspect()
                   }}
                 />
                 <button onClick={inspect}>INSPECT</button>
               </span>
+              {searchErr && <span className="warn-inline">⚠ {searchErr}</span>}
               <span className="lbl" style={{ marginLeft: 'auto' }}>
                 click a token, then a feature → INTERVENE
               </span>

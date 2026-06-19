@@ -33,6 +33,20 @@ export default function App() {
 
   const runId = useRef(0)
 
+  const selectFeature = (t: InterveneTarget) => {
+    setTarget(t)
+    // bring INTERVENE into view so the cross-panel handoff is visible
+    requestAnimationFrame(() => {
+      const el = document.getElementById('intervene')
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      if (r.top > window.innerHeight - 120 || r.bottom < 120) {
+        const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' })
+      }
+    })
+  }
+
   const run = async (p: string) => {
     const q = p.trim()
     if (!q) return
@@ -49,7 +63,11 @@ export default function App() {
       setFwd(f)
       setTraj(t)
     } catch (e) {
-      if (id === runId.current) setError(e instanceof Error ? e.message : String(e))
+      if (id === runId.current) {
+        setError(e instanceof Error ? e.message : String(e))
+        setFwd(null)
+        setTraj(null)
+      }
     } finally {
       if (id === runId.current) setLoading(false)
     }
@@ -145,7 +163,7 @@ export default function App() {
             }}
           />
         </div>
-        <button className="run" onClick={() => run(prompt)} disabled={loading}>
+        <button className="run" onClick={() => run(prompt)} disabled={loading || !prompt.trim()}>
           {loading ? 'RUNNING…' : 'RUN ▶'}
         </button>
         <div className="mdl">
@@ -189,6 +207,9 @@ export default function App() {
           tokens={fwd ? fwd.tokens.length : 0}
           model={model}
           prompt={applied}
+          layers={health ? health.n_layers : 12}
+          heads={health ? health.n_heads : 12}
+          dmodel={health ? health.d_model : 768}
         />
 
         <main className="page">
@@ -233,7 +254,12 @@ export default function App() {
 
           {error && (
             <div className="mod">
-              <div className="mod-body err">⚠ {error}</div>
+              <div className="mod-body err-bar">
+                <span>⚠ {error}</span>
+                <button className="retry-btn" onClick={() => run(applied || prompt)} disabled={loading}>
+                  {loading ? 'RETRYING…' : 'RETRY ▶'}
+                </button>
+              </div>
             </div>
           )}
 
@@ -255,7 +281,7 @@ export default function App() {
           )}
           <div className="split">
             <Figure name="03-residual">
-              <ResidualView traj={traj} focus={focus} />
+              <ResidualView traj={traj} focus={focus} error={error} />
             </Figure>
             <Figure name="04-probes">
               <ProbeView />
@@ -268,7 +294,7 @@ export default function App() {
               prompt={applied}
               model={model}
               selectedFeature={target?.feature ?? null}
-              onSelect={setTarget}
+              onSelect={selectFeature}
             />
           </Figure>
           <Figure name="06-neurons">

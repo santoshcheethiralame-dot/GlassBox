@@ -68,15 +68,15 @@ export function AttentionView({
             <div className="ctlbar">
               <span className="lbl">layer</span>
               <span className="stepper">
-                <button aria-label="previous layer" onClick={() => setLayer((layer - 1 + data.n_layers) % data.n_layers)}>◀</button>
+                <button aria-label="previous layer" disabled={layer === 0} onClick={() => setLayer(layer - 1)}>◀</button>
                 <span className="v">L{String(layer).padStart(2, '0')}</span>
-                <button aria-label="next layer" onClick={() => setLayer((layer + 1) % data.n_layers)}>▶</button>
+                <button aria-label="next layer" disabled={layer === data.n_layers - 1} onClick={() => setLayer(layer + 1)}>▶</button>
               </span>
               <span className="lbl">head</span>
               <span className="stepper">
-                <button aria-label="previous head" onClick={() => setHead((head - 1 + data.n_heads) % data.n_heads)}>◀</button>
+                <button aria-label="previous head" disabled={head === 0} onClick={() => setHead(head - 1)}>◀</button>
                 <span className="v">H{String(head).padStart(2, '0')}</span>
-                <button aria-label="next head" onClick={() => setHead((head + 1) % data.n_heads)}>▶</button>
+                <button aria-label="next head" disabled={head === data.n_heads - 1} onClick={() => setHead(head + 1)}>▶</button>
               </span>
               <span className="lbl" style={{ marginLeft: 'auto' }}>
                 rows attend to cols · causal
@@ -146,7 +146,7 @@ export function AttentionView({
         </div>
       </div>
       {hover && (
-        <div className="tooltip" style={{ left: hover.x + 14, top: hover.y + 14 }}>
+        <div className="tooltip" style={{ left: Math.min(hover.x + 14, window.innerWidth - 190), top: Math.min(hover.y + 14, window.innerHeight - 64) }}>
           {`${cleanToken(data.tokens[hover.r])} → ${cleanToken(data.tokens[hover.c])}\n${m[hover.r][hover.c].toFixed(3)}`}
         </div>
       )}

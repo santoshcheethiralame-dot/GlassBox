@@ -18,9 +18,11 @@ export function InterveneView({
   const [coeff, setCoeff] = useState(10)
   const [interv, setInterv] = useState<InterveneResponse | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setInterv(null)
+    setError(null)
   }, [target?.feature, target?.layer])
 
   useEffect(() => {
@@ -29,10 +31,11 @@ export function InterveneView({
     if (!q) return
     let live = true
     setLoading(true)
+    setError(null)
     const t = setTimeout(() => {
       runIntervene({ prompt: q, layer: target.layer, feature: target.feature, mode, coeff, model })
         .then((r) => live && setInterv(r))
-        .catch(() => live && setInterv(null))
+        .catch((e) => live && setError(e instanceof Error ? e.message : String(e)))
         .finally(() => live && setLoading(false))
     }, 220)
     return () => {
@@ -99,6 +102,8 @@ export function InterveneView({
               )}
             </div>
 
+            {error && <div className="err">⚠ {error}</div>}
+
             {interv ? (
               <div className="interv-body">
                 <div className="shifts">
@@ -142,9 +147,9 @@ export function InterveneView({
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : !error ? (
               <div className="busy">[ RUNNING ]</div>
-            )}
+            ) : null}
           </>
         )}
       </div>

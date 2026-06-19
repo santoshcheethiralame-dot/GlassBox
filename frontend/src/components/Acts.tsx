@@ -52,12 +52,18 @@ export function SideNav({
   tokens,
   model,
   prompt,
+  layers,
+  heads,
+  dmodel,
 }: {
   active: string
   progress: number
   tokens: number
   model: string
   prompt: string
+  layers: number
+  heads: number
+  dmodel: number
 }) {
   return (
     <nav className="sidenav" aria-label="Acts">
@@ -76,6 +82,23 @@ export function SideNav({
             <span className="sn-num">{a.n}</span>
           </a>
         ))}
+      </div>
+      <div className="sn-arch">
+        <span className="sn-foot-k">architecture</span>
+        <div className="sn-arch-grid">
+          <div>
+            <b>{layers}</b>
+            <i>layers</i>
+          </div>
+          <div>
+            <b>{heads}</b>
+            <i>heads</i>
+          </div>
+          <div>
+            <b>{dmodel}</b>
+            <i>d_model</i>
+          </div>
+        </div>
       </div>
       <div className="sn-foot">
         <div className="sn-foot-row">
