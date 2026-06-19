@@ -1,3 +1,19 @@
+import type { KeyboardEvent } from 'react'
+
+export function clickable(onActivate: () => void) {
+  return {
+    role: 'button' as const,
+    tabIndex: 0,
+    onClick: onActivate,
+    onKeyDown: (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        onActivate()
+      }
+    },
+  }
+}
+
 export function cleanToken(t: string): string {
   if (t === '<|endoftext|>') return '⟨BOS⟩'
   if (t === '') return '∅'

@@ -1,4 +1,4 @@
-import { cleanToken } from '../util'
+import { cleanToken, clickable } from '../util'
 import type { TokenPrediction } from '../types'
 
 export function Tokens({
@@ -31,7 +31,7 @@ export function Tokens({
             <div
               key={i}
               className={`tk ${focus === i ? 'sel' : ''}`}
-              onClick={() => onFocus(focus === i ? null : i)}
+              {...clickable(() => onFocus(focus === i ? null : i))}
             >
               <span className="t">{cleanToken(t)}</span>
               <span className="i">{i}</span>

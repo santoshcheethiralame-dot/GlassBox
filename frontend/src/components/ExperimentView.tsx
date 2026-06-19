@@ -89,8 +89,8 @@ export function ExperimentView({ model }: { model: string }) {
               })}
             </div>
             <div className="lbl" style={{ marginTop: 8, textTransform: 'none', letterSpacing: '0.3px' }}>
-              bar = logit-diff (grounded − parametric): <span style={{ color: 'var(--acc)' }}>right/red</span>{' '}
-              follows context · <span style={{ color: 'var(--cool)' }}>left/blue</span> confabulates
+              bar = logit-diff (grounded − parametric): <span style={{ color: 'var(--acc)' }}>right/amber</span>{' '}
+              follows context · <span style={{ color: 'var(--cool)' }}>left/slate</span> confabulates
             </div>
 
             {data.flip && (

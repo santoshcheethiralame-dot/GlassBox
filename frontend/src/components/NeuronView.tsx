@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { scanLayer } from '../api'
 import type { NeuronScanResponse } from '../types'
-import { cleanToken } from '../util'
+import { cleanToken, clickable } from '../util'
 
 export function NeuronView() {
   const [layer, setLayer] = useState(0)
@@ -45,9 +45,9 @@ export function NeuronView() {
             mlp_post · <b>{res ? `${res.n_sentences} seq · ${res.d_mlp} / layer` : '…'}</b>
           </span>
           <span className="stepper">
-            <button onClick={() => step(-1)}>◀</button>
+            <button aria-label="previous layer" onClick={() => step(-1)}>◀</button>
             <span className="v">L{String(layer).padStart(2, '0')}</span>
-            <button onClick={() => step(1)}>▶</button>
+            <button aria-label="next layer" onClick={() => step(1)}>▶</button>
           </span>
         </div>
       </div>
@@ -60,7 +60,7 @@ export function NeuronView() {
               <div
                 key={nn.index}
                 className={`ncard ${sel === i ? 'sel' : ''}`}
-                onClick={() => setSel(sel === i ? null : i)}
+                {...clickable(() => setSel(sel === i ? null : i))}
               >
                 <div className="nch">
                   <span className="nid">

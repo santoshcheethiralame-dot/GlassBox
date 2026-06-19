@@ -22,7 +22,7 @@ export function Figure({ name, children }: { name: string; children: ReactNode }
 
   return (
     <div className="figure" ref={ref}>
-      <button className="fig-export" onClick={onExport} title="export this panel as PNG">
+      <button className="fig-export" onClick={onExport} aria-label={`export ${name} panel as PNG`} title="export this panel as PNG">
         ⬇ PNG
       </button>
       {children}

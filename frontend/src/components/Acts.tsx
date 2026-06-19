@@ -60,7 +60,7 @@ export function SideNav({
   prompt: string
 }) {
   return (
-    <nav className="sidenav">
+    <nav className="sidenav" aria-label="Acts">
       <div className="sn-top">
         <span className="sn-eyebrow">interpretability</span>
         <span className="sn-title">ACTS</span>
@@ -68,7 +68,7 @@ export function SideNav({
       <div className="sn-acts">
         {ACTS.map((a) => (
           <a key={a.id} href={`#${a.id}`} className={`sn-item${active === a.id ? ' on' : ''}`}>
-            <span className="sn-ico">{ICONS[a.id]}</span>
+            <span className="sn-ico" aria-hidden="true">{ICONS[a.id]}</span>
             <span className="sn-tx">
               <span className="sn-name">{a.name}</span>
               <span className="sn-sub">{a.sub}</span>
@@ -103,7 +103,7 @@ export function ActHeader({ act }: { act: Act }) {
   return (
     <div className="act" id={act.id}>
       <span className="act-n">{act.n}</span>
-      <span className="act-name">{act.name}</span>
+      <h2 className="act-name">{act.name}</h2>
       <span className="act-sub lbl">{act.sub}</span>
       <span className="act-rule" />
     </div>

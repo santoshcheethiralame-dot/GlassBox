@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { cleanToken, short } from '../util'
+import { cleanToken, short, clickable } from '../util'
 import type { ForwardResponse } from '../types'
 
 export function AttentionView({
@@ -28,7 +28,8 @@ export function AttentionView({
           <div
             key={h}
             className={`head ${h === head ? 'sel' : ''}`}
-            onClick={() => setHead(h)}
+            {...clickable(() => setHead(h))}
+            aria-label={`layer ${layer}, head ${h}`}
             title={`L${layer} H${h}`}
           >
             <svg viewBox={`0 0 ${n} ${n}`} width="100%">
@@ -67,15 +68,15 @@ export function AttentionView({
             <div className="ctlbar">
               <span className="lbl">layer</span>
               <span className="stepper">
-                <button onClick={() => setLayer((layer - 1 + data.n_layers) % data.n_layers)}>◀</button>
+                <button aria-label="previous layer" onClick={() => setLayer((layer - 1 + data.n_layers) % data.n_layers)}>◀</button>
                 <span className="v">L{String(layer).padStart(2, '0')}</span>
-                <button onClick={() => setLayer((layer + 1) % data.n_layers)}>▶</button>
+                <button aria-label="next layer" onClick={() => setLayer((layer + 1) % data.n_layers)}>▶</button>
               </span>
               <span className="lbl">head</span>
               <span className="stepper">
-                <button onClick={() => setHead((head - 1 + data.n_heads) % data.n_heads)}>◀</button>
+                <button aria-label="previous head" onClick={() => setHead((head - 1 + data.n_heads) % data.n_heads)}>◀</button>
                 <span className="v">H{String(head).padStart(2, '0')}</span>
-                <button onClick={() => setHead((head + 1) % data.n_heads)}>▶</button>
+                <button aria-label="next head" onClick={() => setHead((head + 1) % data.n_heads)}>▶</button>
               </span>
               <span className="lbl" style={{ marginLeft: 'auto' }}>
                 rows attend to cols · causal

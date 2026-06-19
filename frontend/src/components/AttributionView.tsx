@@ -152,8 +152,8 @@ export function AttributionView({ model }: { model: string }) {
             </div>
 
             <div className="lbl" style={{ marginTop: 12, textTransform: 'none', letterSpacing: '0.3px' }}>
-              <span style={{ color: 'var(--acc)' }}>red</span> supports "{cleanToken(data.answer)}" ·{' '}
-              <span style={{ color: 'var(--cool)' }}>blue</span> supports "{cleanToken(data.corrupted_answer)}" ·
+              <span style={{ color: 'var(--acc)' }}>amber</span> supports "{cleanToken(data.answer)}" ·{' '}
+              <span style={{ color: 'var(--cool)' }}>slate</span> supports "{cleanToken(data.corrupted_answer)}" ·
               outlined = corrupted positions · hover for values
             </div>
           </>

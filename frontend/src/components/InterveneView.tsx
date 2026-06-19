@@ -84,6 +84,7 @@ export function InterveneView({
                 <span className="coeffctl">
                   <input
                     type="range"
+                    aria-label="steer coefficient"
                     min={-20}
                     max={40}
                     step={1}

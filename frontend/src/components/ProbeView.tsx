@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { runProbes } from '../api'
 import type { ProbeResponse } from '../types'
+import { clickable } from '../util'
 
 function stepPoints(acc: number[], px: (i: number) => number, py: (v: number) => number): string {
   const pts: string[] = []
@@ -56,7 +57,8 @@ export function ProbeView() {
               <span
                 key={r.key}
                 className={`lt ${off.has(r.key) ? 'off' : ''} ${key ? 'key' : ''}`}
-                onClick={() => toggle(r.key)}
+                aria-pressed={!off.has(r.key)}
+                {...clickable(() => toggle(r.key))}
               >
                 <span
                   className="sw"

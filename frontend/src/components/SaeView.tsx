@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getSaeInfo, getSaeLabels, runSaeFeatures, runSaeTrack } from '../api'
 import type { SaeFeaturesResponse, SaeInfo } from '../types'
-import { cleanToken } from '../util'
+import { cleanToken, clickable } from '../util'
 import type { InterveneTarget } from './InterveneView'
 
 export function SaeView({
@@ -143,9 +143,9 @@ export function SaeView({
             <div className="ctlbar" style={{ marginBottom: 16 }}>
               <span className="lbl">layer</span>
               <span className="stepper">
-                <button onClick={() => setLayer((layer - 1 + nLayers) % nLayers)}>◀</button>
+                <button aria-label="previous layer" onClick={() => setLayer((layer - 1 + nLayers) % nLayers)}>◀</button>
                 <span className="v">L{String(layer).padStart(2, '0')}</span>
-                <button onClick={() => setLayer((layer + 1) % nLayers)}>▶</button>
+                <button aria-label="next layer" onClick={() => setLayer((layer + 1) % nLayers)}>▶</button>
               </span>
               <span className="feat-search">
                 <input
@@ -184,7 +184,7 @@ export function SaeView({
                     <div
                       key={i}
                       className={`tk ${i === sel ? 'sel' : ''}`}
-                      onClick={() => setSel(i)}
+                      {...clickable(() => setSel(i))}
                       style={
                         tintable
                           ? {
@@ -220,13 +220,13 @@ export function SaeView({
                     <div
                       key={f.index}
                       className={`featrow click ${selectedFeature === f.index ? 'on' : ''}`}
-                      onClick={() =>
+                      {...clickable(() =>
                         onSelect({
                           layer: data.layer,
                           feature: f.index,
                           label: labels[String(f.index)] ?? null,
-                        })
-                      }
+                        }),
+                      )}
                     >
                       <span className="fid">f/{f.index}</span>
                       <span className="fbarwrap">
@@ -241,6 +241,7 @@ export function SaeView({
                           target="_blank"
                           rel="noreferrer"
                           onClick={(e) => e.stopPropagation()}
+                          aria-label={`open feature f/${f.index} on Neuronpedia (opens new tab)`}
                           title="open this feature on Neuronpedia"
                         >
                           ↗

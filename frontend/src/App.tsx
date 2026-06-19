@@ -71,6 +71,7 @@ export default function App() {
   }, [model])
 
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     let raf = 0
     const onMove = (e: MouseEvent) => {
       if (raf) return
@@ -116,10 +117,11 @@ export default function App() {
 
   return (
     <div className="shell">
+      <a href="#observe" className="skip">Skip to content</a>
       <header className="masthead">
         <div className="brand">
           <span className="mark">
-            <svg viewBox="0 0 30 30" fill="none">
+            <svg viewBox="0 0 30 30" fill="none" aria-hidden="true">
               <rect x="3.5" y="3.5" width="10.5" height="10.5" rx="3" fill="rgba(255, 162, 77, 0.32)" stroke="var(--acc)" strokeWidth="1.5" />
               <rect x="16" y="3.5" width="10.5" height="10.5" rx="3" fill="rgba(255, 162, 77, 0.07)" stroke="var(--acc)" strokeWidth="1.5" />
               <rect x="3.5" y="16" width="10.5" height="10.5" rx="3" fill="rgba(255, 162, 77, 0.07)" stroke="var(--acc)" strokeWidth="1.5" />
@@ -134,6 +136,7 @@ export default function App() {
           <span className="lbl tag">prompt /</span>
           <input
             className="prompt-in"
+            aria-label="prompt"
             value={prompt}
             spellCheck={false}
             onChange={(e) => setPrompt(e.target.value)}
@@ -147,7 +150,7 @@ export default function App() {
         </button>
         <div className="mdl">
           <span className="lbl">model</span>
-          <select value={model} onChange={(e) => setModel(e.target.value)}>
+          <select aria-label="model" value={model} onChange={(e) => setModel(e.target.value)}>
             {(models.length ? models : [{ key: 'gpt2', name: 'gpt2', device: 'cpu' }]).map((m) => (
               <option key={m.key} value={m.key}>
                 {m.key}
