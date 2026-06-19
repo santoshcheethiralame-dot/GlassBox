@@ -76,10 +76,8 @@ input { font-family: inherit; }
   border: 1px solid var(--glass-brd);
 }
 .brand { display: flex; align-items: center; gap: 13px; padding: 0 22px; border-right: 2px solid var(--line2); }
-.mark { width: 30px; height: 30px; border: 2px solid var(--text); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; flex: none; }
-.mark i { border: 0.5px solid var(--text); }
-.mark i:nth-child(1) { background: var(--acc); border-color: var(--acc); }
-.mark i:nth-child(4) { background: var(--cool); }
+.mark { width: 32px; height: 32px; display: grid; place-items: center; color: var(--acc); flex: none; }
+.mark svg { width: 30px; height: 30px; filter: drop-shadow(0 0 8px rgba(255, 162, 77, 0.4)); }
 .brand .nm { font-size: 25px; font-weight: 800; letter-spacing: -1.2px; }
 .ver { align-self: center; font-size: 11px; font-weight: 800; letter-spacing: 1px; color: var(--cool); border: 1.5px solid var(--cool); padding: 1px 5px 0; }
 .prompt-zone { flex: 1; display: flex; align-items: center; gap: 14px; padding: 0 20px; min-width: 0; }
@@ -397,3 +395,5 @@ svg { display: block; }
 .brand .nm, .hero-tt h1, .stat .v, .mod-head .ttl, .act-name, .pred .big, .mcell .mv, .exp-stat b, .flip-val, .ncard .nid, .ncard .nact { font-family: var(--display); letter-spacing: -0.02em; }
 .tk .t, .atok, .snip, .pbar .pt, .prow .pt, .shift .st, .exp-subj, .featrow .fid, .fid { font-family: var(--mono); }
 .lbl { letter-spacing: 0.05em; font-weight: 600; }
+.fbarwrap, .sbarwrap, .exp-bar, .pbar .pf, .fbar, .sbar, .exp-fill { border-radius: 5px; }
+.fbarwrap, .sbarwrap, .exp-bar { overflow: hidden; }

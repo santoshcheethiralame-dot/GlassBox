@@ -115,13 +115,20 @@ export default function App() {
       <header className="masthead">
         <div className="brand">
           <span className="mark">
-            <i />
-            <i />
-            <i />
-            <i />
+            <svg
+              viewBox="0 0 28 28"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            >
+              <path d="M14 3 L24 8.5 V19.5 L14 25 L4 19.5 V8.5 Z" fill="rgba(255, 162, 77, 0.1)" />
+              <path d="M14 14 L14 25 M14 14 L4 8.5 M14 14 L24 8.5" opacity="0.85" />
+            </svg>
           </span>
           <span className="nm">GLASSBOX</span>
-          <span className="ver">v3</span>
+          <span className="ver">v4</span>
         </div>
         <div className="prompt-zone">
           <span className="lbl tag">prompt /</span>
