@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { runAttribute } from '../api'
 import type { AttributeResponse } from '../types'
-import { accMix, cleanToken, negMix } from '../util'
+import { cleanToken } from '../util'
 
 const DEF = {
   clean_prompt: 'Alice lives in Paris. Bob lives in London. Alice lives in',
@@ -131,13 +131,16 @@ export function AttributionView({ model }: { model: string }) {
               {data.tokens.map((t, i) => {
                 const a = data.attribution[i]
                 const norm = Math.abs(a) / maxAbs
-                const bg = a >= 0 ? accMix(norm) : negMix(norm)
+                const ch = a >= 0 ? '255, 162, 77' : '108, 122, 153'
+                const ta = (0.55 * norm).toFixed(3)
                 const diff = data.corrupted_tokens[i] !== t
                 return (
                   <span
                     key={i}
                     className={`atok ${diff ? 'diff' : ''}`}
-                    style={{ background: bg }}
+                    style={{
+                      background: `linear-gradient(rgba(${ch}, ${ta}), rgba(${ch}, ${ta})), rgba(255, 255, 255, 0.06)`,
+                    }}
                     title={`${
                       diff ? `${cleanToken(t)} ↔ ${cleanToken(data.corrupted_tokens[i])}` : cleanToken(t)
                     }  ·  ${a >= 0 ? '+' : ''}${a.toFixed(3)}`}

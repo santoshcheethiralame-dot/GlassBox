@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { cleanToken, accMix, short } from '../util'
+import { cleanToken, short } from '../util'
 import type { ForwardResponse } from '../types'
 
 export function AttentionView({
@@ -35,7 +35,7 @@ export function AttentionView({
               {hp.map((row, r) =>
                 row.map((v, c) =>
                   c <= r ? (
-                    <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill={accMix(v ** 0.7)} />
+                    <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} fill="var(--acc)" fillOpacity={Math.max(0.05, v ** 0.7)} />
                   ) : null,
                 ),
               )}
@@ -125,7 +125,8 @@ export function AttentionView({
                       y={lab + r * cell}
                       width={cell}
                       height={cell}
-                      fill={c > r ? 'var(--bg)' : accMix(v ** 0.7)}
+                      fill={c > r ? '#000000' : 'var(--acc)'}
+                      fillOpacity={c > r ? 0.22 : Math.max(0.04, v ** 0.7)}
                       onMouseMove={(e) => setHover({ r, c, x: e.clientX, y: e.clientY })}
                       onClick={() => onFocus(focus === c ? null : c)}
                     />

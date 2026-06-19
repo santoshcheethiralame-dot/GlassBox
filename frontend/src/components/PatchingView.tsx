@@ -3,7 +3,7 @@ import type { ChangeEvent } from 'react'
 import { runPatching } from '../api'
 import type { PatchInput } from '../api'
 import type { PatchResponse } from '../types'
-import { accMix, negMix, short } from '../util'
+import { short } from '../util'
 
 const DEF: PatchInput = {
   clean_prompt: 'The capital of France is',
@@ -90,7 +90,8 @@ export function PatchingView() {
                 y={top + l * cell}
                 width={cell}
                 height={cell}
-                fill={v >= 0 ? accMix(v / amax) : negMix(-v / amax)}
+                fill={v >= 0 ? 'var(--acc)' : 'var(--cool)'}
+                fillOpacity={Math.max(0.04, Math.abs(v) / amax)}
               />
             )),
           )}
