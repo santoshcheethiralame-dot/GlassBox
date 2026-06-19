@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Tokens } from './components/Tokens'
 import { AttentionView } from './components/AttentionView'
 import { ResidualView } from './components/ResidualView'
@@ -31,9 +31,12 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const runId = useRef(0)
+
   const run = async (p: string) => {
     const q = p.trim()
     if (!q) return
+    const id = ++runId.current
     setApplied(q)
     setLoading(true)
     setError(null)
@@ -42,12 +45,13 @@ export default function App() {
     setTarget(null)
     try {
       const [f, t] = await Promise.all([runForward(q), runTrajectory(q)])
+      if (id !== runId.current) return
       setFwd(f)
       setTraj(t)
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      if (id === runId.current) setError(e instanceof Error ? e.message : String(e))
     } finally {
-      setLoading(false)
+      if (id === runId.current) setLoading(false)
     }
   }
 
@@ -185,10 +189,6 @@ export default function App() {
         />
 
         <main className="page">
-          <span className="crop tl" />
-          <span className="crop tr" />
-          <span className="crop bl" />
-          <span className="crop br" />
 
           <section className="hero">
             <div className="hero-top">

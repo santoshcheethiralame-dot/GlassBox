@@ -67,7 +67,7 @@ export function PatchingView() {
     const H = top + nl * cell + 4
     heat = (
       <div className="hmwrap">
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet" style={{ maxHeight: 520 }}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H}>
           {toks.map((t, q) => {
             const x = lab + q * cell + cell * 0.66
             return (

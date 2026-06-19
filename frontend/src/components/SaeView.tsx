@@ -39,15 +39,27 @@ export function SaeView({
     if (!info?.available) return
     const q = prompt.trim()
     if (!q) return
+    let live = true
     setLoading(true)
     setError(null)
-    runSaeFeatures(q, layer, model)
-      .then((r) => {
-        setData(r)
-        setSel(r.tokens.length - 1)
-      })
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false))
+    const t = setTimeout(() => {
+      runSaeFeatures(q, layer, model)
+        .then((r) => {
+          if (!live) return
+          setData(r)
+          setSel(r.tokens.length - 1)
+        })
+        .catch((e) => {
+          if (live) setError(e instanceof Error ? e.message : String(e))
+        })
+        .finally(() => {
+          if (live) setLoading(false)
+        })
+    }, 180)
+    return () => {
+      live = false
+      clearTimeout(t)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prompt, model, layer, info?.available])
 

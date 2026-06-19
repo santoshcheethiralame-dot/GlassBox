@@ -82,12 +82,7 @@ export function AttentionView({
               </span>
             </div>
             <div className="hmwrap">
-              <svg
-                viewBox={`0 0 ${W} ${W}`}
-                width="100%"
-                preserveAspectRatio="xMidYMid meet"
-                style={{ maxHeight: 560 }}
-              >
+              <svg viewBox={`0 0 ${W} ${W}`} width={W} height={W}>
                 {labels.map((t, c) => {
                   const x = lab + c * cell + cell * 0.66
                   return (
