@@ -18,14 +18,16 @@ import type {
 
 const BASE = '/api'
 
-async function rfetch(url: string, opts?: RequestInit): Promise<Response> {
+// Only idempotent GETs are retried. POSTs run real compute on the server, so a
+// network throw could mean the request already landed — retrying would double-run it.
+async function rfetch(url: string, opts: RequestInit | undefined, attempts: number): Promise<Response> {
   let last: unknown
-  for (let a = 0; a < 4; a++) {
+  for (let a = 0; a < attempts; a++) {
     try {
       return await fetch(url, opts)
     } catch (e) {
       last = e
-      await new Promise((r) => setTimeout(r, 350))
+      if (a < attempts - 1) await new Promise((r) => setTimeout(r, 350))
     }
   }
   throw last instanceof Error ? last : new Error('network error')
@@ -39,17 +41,21 @@ async function detailOf(res: Response): Promise<string> {
 }
 
 async function postJSON<T>(path: string, body: unknown): Promise<T> {
-  const res = await rfetch(`${BASE}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+  const res = await rfetch(
+    `${BASE}${path}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    1,
+  )
   if (!res.ok) throw new Error(await detailOf(res))
   return res.json() as Promise<T>
 }
 
 async function getJSON<T>(path: string): Promise<T> {
-  const res = await rfetch(`${BASE}${path}`)
+  const res = await rfetch(`${BASE}${path}`, undefined, 4)
   if (!res.ok) throw new Error(await detailOf(res))
   return res.json() as Promise<T>
 }

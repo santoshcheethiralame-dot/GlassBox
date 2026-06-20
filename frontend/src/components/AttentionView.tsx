@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { cleanToken, short, clickable } from '../util'
 import type { ForwardResponse } from '../types'
 
@@ -14,6 +14,19 @@ export function AttentionView({
   const [layer, setLayer] = useState(0)
   const [head, setHead] = useState(0)
   const [hover, setHover] = useState<{ r: number; c: number; x: number; y: number } | null>(null)
+
+  // rAF-throttle hover so dragging across the grid doesn't re-render every pixel move
+  const raf = useRef(0)
+  const pending = useRef<{ r: number; c: number; x: number; y: number } | null>(null)
+  const queueHover = (h: { r: number; c: number; x: number; y: number }) => {
+    pending.current = h
+    if (raf.current) return
+    raf.current = requestAnimationFrame(() => {
+      raf.current = 0
+      setHover(pending.current)
+    })
+  }
+  useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current) }, [])
 
   const n = data.tokens.length
   const labels = data.tokens.map((t) => short(t, 7))
@@ -123,7 +136,7 @@ export function AttentionView({
                       height={cell}
                       fill={c > r ? '#000000' : 'var(--acc)'}
                       fillOpacity={c > r ? 0.22 : Math.max(0.04, v ** 0.7)}
-                      onMouseMove={(e) => setHover({ r, c, x: e.clientX, y: e.clientY })}
+                      onMouseMove={(e) => queueHover({ r, c, x: e.clientX, y: e.clientY })}
                       onClick={() => onFocus(focus === c ? null : c)}
                     />
                   )),

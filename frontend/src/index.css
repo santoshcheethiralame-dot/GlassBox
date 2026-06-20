@@ -22,7 +22,7 @@
   --glass-brd: rgba(255, 255, 255, 0.11);
   --glass-hi: rgba(255, 255, 255, 0.10);
   --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 50px -26px rgba(0, 0, 0, 0.72), 0 8px 22px -14px rgba(0, 0, 0, 0.55);
-  --blur: 22px;
+  --blur: 18px;
   --r-lg: 22px;
   --r-md: 14px;
   --r-sm: 10px;
@@ -41,7 +41,7 @@ body {
   line-height: 1.5;
   letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
-  background: var(--bg) url('/glass-bg.svg') center / cover no-repeat fixed;
+  background: var(--bg);
   padding: 26px;
 }
 body::before {
@@ -50,7 +50,11 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(500px 500px at var(--mx, 75%) var(--my, 14%), rgba(255, 178, 98, 0.1), transparent 60%);
+  /* brick + cursor glow on one composited fixed layer — avoids the
+     scroll-repaint cost of background-attachment: fixed */
+  background:
+    radial-gradient(500px 500px at var(--mx, 75%) var(--my, 14%), rgba(255, 178, 98, 0.1), transparent 60%),
+    url('/glass-bg.svg') center / cover no-repeat;
 }
 body::after {
   content: '';

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { cleanToken, short } from '../util'
 import type { TrajectoryResponse } from '../types'
 
@@ -30,6 +30,19 @@ export function ResidualView({
   error?: string | null
 }) {
   const [hover, setHover] = useState<{ t: number; p: number; x: number; y: number } | null>(null)
+
+  // rAF-throttle hover so moving over the trajectory points doesn't re-render every pixel move
+  const raf = useRef(0)
+  const pending = useRef<{ t: number; p: number; x: number; y: number } | null>(null)
+  const queueHover = (h: { t: number; p: number; x: number; y: number }) => {
+    pending.current = h
+    if (raf.current) return
+    raf.current = requestAnimationFrame(() => {
+      raf.current = 0
+      setHover(pending.current)
+    })
+  }
+  useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current) }, [])
 
   let body
   if (error && !traj) {
@@ -134,7 +147,7 @@ export function ResidualView({
                       r={r}
                       fill={col}
                       opacity={dim ? 0.18 : 0.7}
-                      onMouseMove={(e) => setHover({ t, p: i, x: e.clientX, y: e.clientY })}
+                      onMouseMove={(e) => queueHover({ t, p: i, x: e.clientX, y: e.clientY })}
                       style={{ cursor: 'crosshair' }}
                     />
                   )
@@ -183,7 +196,7 @@ export function ResidualView({
                         fill={last ? col : '#0a0b0f'}
                         stroke={col}
                         strokeWidth={last ? 0 : 1.6}
-                        onMouseMove={(e) => setHover({ t, p: i, x: e.clientX, y: e.clientY })}
+                        onMouseMove={(e) => queueHover({ t, p: i, x: e.clientX, y: e.clientY })}
                         style={{ cursor: 'crosshair' }}
                       />
                       {/* Layer number labels along the path */}
