@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.preprocessing import StandardScaler
 
-from model import get_model, synchronized
+from model import DEFAULT_MODEL, get_model, synchronized
 
 _POS = [
     "wonderful", "fantastic", "excellent", "delightful", "amazing", "superb",
@@ -148,8 +148,8 @@ def list_concepts():
 
 
 @synchronized
-def _last_token_resids(prompts):
-    model = get_model()
+def _last_token_resids(prompts, model_key: str = DEFAULT_MODEL):
+    model = get_model(model_key)
     rows = [model.to_tokens(p)[0] for p in prompts]
     lengths = torch.tensor([r.shape[0] for r in rows])
     max_len = int(lengths.max())
@@ -186,8 +186,8 @@ def _probe_layers(resids, labels, groups):
     return train_acc, test_acc, len(train_idx), len(test_idx)
 
 
-def run_probes(keys):
-    model = get_model()
+def run_probes(keys, model_key: str = DEFAULT_MODEL):
+    model = get_model(model_key)
     if not keys:
         keys = list(CONCEPTS.keys())
     unknown = [k for k in keys if k not in CONCEPTS]
@@ -201,7 +201,7 @@ def run_probes(keys):
     for key in keys:
         spec = CONCEPTS[key]
         prompts, labels, groups = spec["data"]()
-        resids = _last_token_resids(prompts)
+        resids = _last_token_resids(prompts, model_key=model_key)
         train_acc, test_acc, n_train, n_test = _probe_layers(resids, labels, groups)
         baseline = float(max(np.mean(labels), 1 - np.mean(labels)))
         results.append(

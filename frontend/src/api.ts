@@ -60,12 +60,12 @@ async function getJSON<T>(path: string): Promise<T> {
   return res.json() as Promise<T>
 }
 
-export function runForward(prompt: string, topK = 10): Promise<ForwardResponse> {
-  return postJSON<ForwardResponse>('/forward', { prompt, top_k: topK })
+export function runForward(prompt: string, topK = 10, model = 'gpt2'): Promise<ForwardResponse> {
+  return postJSON<ForwardResponse>('/forward', { prompt, top_k: topK, model_key: model })
 }
 
-export function runTrajectory(prompt: string): Promise<TrajectoryResponse> {
-  return postJSON<TrajectoryResponse>('/trajectory', { prompt })
+export function runTrajectory(prompt: string, model = 'gpt2'): Promise<TrajectoryResponse> {
+  return postJSON<TrajectoryResponse>('/trajectory', { prompt, model_key: model })
 }
 
 export interface PatchInput {
@@ -75,24 +75,28 @@ export interface PatchInput {
   corrupted_answer: string
 }
 
-export function runPatching(input: PatchInput): Promise<PatchResponse> {
-  return postJSON<PatchResponse>('/patch', input)
+export function runPatching(input: PatchInput, model = 'gpt2'): Promise<PatchResponse> {
+  return postJSON<PatchResponse>('/patch', { ...input, model_key: model })
 }
 
 export function getConcepts(): Promise<ConceptInfo[]> {
   return getJSON<ConceptInfo[]>('/probe/concepts')
 }
 
-export function runProbes(concepts: string[]): Promise<ProbeResponse> {
-  return postJSON<ProbeResponse>('/probe', { concepts })
+export function runProbes(concepts: string[], model = 'gpt2'): Promise<ProbeResponse> {
+  return postJSON<ProbeResponse>('/probe', { concepts, model_key: model })
 }
 
-export function scanLayer(layer: number): Promise<NeuronScanResponse> {
-  return getJSON<NeuronScanResponse>(`/neuron/scan?layer=${layer}`)
+export function scanLayer(layer: number, model = 'gpt2'): Promise<NeuronScanResponse> {
+  return getJSON<NeuronScanResponse>(
+    `/neuron/scan?layer=${layer}&model_key=${encodeURIComponent(model)}`,
+  )
 }
 
-export function neuronDetail(layer: number, index: number): Promise<NeuronDetail> {
-  return getJSON<NeuronDetail>(`/neuron?layer=${layer}&index=${index}`)
+export function neuronDetail(layer: number, index: number, model = 'gpt2'): Promise<NeuronDetail> {
+  return getJSON<NeuronDetail>(
+    `/neuron?layer=${layer}&index=${index}&model_key=${encodeURIComponent(model)}`,
+  )
 }
 
 export function getHealth(): Promise<HealthResponse> {

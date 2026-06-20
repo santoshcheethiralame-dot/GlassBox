@@ -48,7 +48,7 @@ def list_models() -> list[dict]:
 
 def get_model(key: str = DEFAULT_MODEL) -> HookedTransformer:
     if key not in MODELS:
-        raise KeyError(f"unknown model {key!r}; options are {list(MODELS)}")
+        raise HTTPException(status_code=400, detail=f"unknown model {key!r}; options are {list(MODELS)}")
     if MODELS[key].get("requires_gpu") and not torch.cuda.is_available():
         raise HTTPException(
             status_code=503,

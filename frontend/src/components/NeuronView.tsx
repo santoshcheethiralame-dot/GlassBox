@@ -3,7 +3,7 @@ import { scanLayer } from '../api'
 import type { NeuronScanResponse } from '../types'
 import { cleanToken, clickable } from '../util'
 
-export function NeuronView() {
+export function NeuronView({ model, nLayers }: { model: string; nLayers: number }) {
   const [layer, setLayer] = useState(0)
   const [res, setRes] = useState<NeuronScanResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -14,7 +14,7 @@ export function NeuronView() {
     setLoading(true)
     setError(null)
     setSel(null)
-    scanLayer(l)
+    scanLayer(l, model)
       .then((r) => {
         setRes(r)
         setLoading(false)
@@ -26,11 +26,13 @@ export function NeuronView() {
   }
 
   useEffect(() => {
+    setLayer(0)
     scan(0)
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [model])
 
   const step = (d: number) => {
-    const l = Math.max(0, Math.min(11, layer + d))
+    const l = Math.max(0, Math.min(nLayers - 1, layer + d))
     if (l === layer) return
     setLayer(l)
     scan(l)
@@ -48,7 +50,7 @@ export function NeuronView() {
           <span className="stepper">
             <button aria-label="previous layer" disabled={layer === 0} onClick={() => step(-1)}>◀</button>
             <span className="v">L{String(layer).padStart(2, '0')}</span>
-            <button aria-label="next layer" disabled={layer === 11} onClick={() => step(1)}>▶</button>
+            <button aria-label="next layer" disabled={layer === nLayers - 1} onClick={() => step(1)}>▶</button>
           </span>
         </div>
       </div>

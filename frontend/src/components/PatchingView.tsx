@@ -12,7 +12,7 @@ const DEF: PatchInput = {
   corrupted_answer: ' London',
 }
 
-export function PatchingView() {
+export function PatchingView({ model }: { model: string }) {
   const [form, setForm] = useState(DEF)
   const [res, setRes] = useState<PatchResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -21,7 +21,7 @@ export function PatchingView() {
   const run = (input: PatchInput) => {
     setLoading(true)
     setError(null)
-    runPatching(input)
+    runPatching(input, model)
       .then((r) => {
         setRes(r)
         setLoading(false)
@@ -33,8 +33,9 @@ export function PatchingView() {
   }
 
   useEffect(() => {
-    run(DEF)
-  }, [])
+    run(form)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [model])
 
   const set = (k: keyof PatchInput) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [k]: e.target.value })

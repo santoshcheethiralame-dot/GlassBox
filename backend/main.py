@@ -59,12 +59,18 @@ def health() -> dict:
 
 @app.post("/api/forward")
 def forward(req: ForwardRequest) -> dict:
-    return run_forward(req.prompt, req.top_k)
+    return run_forward(req.prompt, req.top_k, model_key=req.model_key)
 
 
 @app.post("/api/patch")
 def patch(req: PatchRequest) -> dict:
-    return run_patching(req.clean_prompt, req.corrupted_prompt, req.answer, req.corrupted_answer)
+    return run_patching(
+        req.clean_prompt,
+        req.corrupted_prompt,
+        req.answer,
+        req.corrupted_answer,
+        model_key=req.model_key,
+    )
 
 
 @app.get("/api/probe/concepts")
@@ -74,22 +80,26 @@ def probe_concepts() -> list:
 
 @app.post("/api/probe")
 def probe(req: ProbeRequest) -> dict:
-    return run_probes(req.concepts)
+    return run_probes(req.concepts, model_key=req.model_key)
 
 
 @app.post("/api/trajectory")
 def trajectory(req: TrajectoryRequest) -> dict:
-    return run_trajectory(req.prompt)
+    return run_trajectory(req.prompt, model_key=req.model_key)
 
 
 @app.get("/api/neuron/scan")
-def neuron_scan(layer: int = Query(0, ge=0, le=11)) -> dict:
-    return scan_layer(layer)
+def neuron_scan(layer: int = Query(0, ge=0), model_key: str = Query("gpt2")) -> dict:
+    return scan_layer(layer, model_key=model_key)
 
 
 @app.get("/api/neuron")
-def neuron(layer: int = Query(..., ge=0, le=11), index: int = Query(..., ge=0, le=3071)) -> dict:
-    return neuron_detail(layer, index)
+def neuron(
+    layer: int = Query(..., ge=0),
+    index: int = Query(..., ge=0),
+    model_key: str = Query("gpt2"),
+) -> dict:
+    return neuron_detail(layer, index, model_key=model_key)
 
 
 @app.get("/api/models")

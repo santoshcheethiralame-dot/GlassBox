@@ -9,6 +9,7 @@ MAX_PATCH_TOKENS = 32
 class ForwardRequest(BaseModel):
     prompt: str = Field(..., min_length=1)
     top_k: int = Field(10, ge=1, le=50)
+    model_key: str = Field("gpt2")
 
 
 class PatchRequest(BaseModel):
@@ -16,14 +17,17 @@ class PatchRequest(BaseModel):
     corrupted_prompt: str = Field(..., min_length=1)
     answer: str = Field(..., min_length=1)
     corrupted_answer: str = Field(..., min_length=1)
+    model_key: str = Field("gpt2")
 
 
 class ProbeRequest(BaseModel):
     concepts: list[str] = Field(default_factory=list)
+    model_key: str = Field("gpt2")
 
 
 class TrajectoryRequest(BaseModel):
     prompt: str = Field(..., min_length=1)
+    model_key: str = Field("gpt2")
 
 
 class SaeFeaturesRequest(BaseModel):

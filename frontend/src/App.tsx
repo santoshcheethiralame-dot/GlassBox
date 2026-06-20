@@ -32,6 +32,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
 
   const runId = useRef(0)
+  const didModelMount = useRef(false)
 
   const selectFeature = (t: InterveneTarget) => {
     setTarget(t)
@@ -58,7 +59,7 @@ export default function App() {
     setTraj(null)
     setTarget(null)
     try {
-      const [f, t] = await Promise.all([runForward(q), runTrajectory(q)])
+      const [f, t] = await Promise.all([runForward(q, 10, model), runTrajectory(q, model)])
       if (id !== runId.current) return
       setFwd(f)
       setTraj(t)
@@ -86,6 +87,14 @@ export default function App() {
 
   useEffect(() => {
     setTarget(null)
+    // re-run the active prompt against the newly selected model (skip the first mount,
+    // which the initial-load effect already covers)
+    if (!didModelMount.current) {
+      didModelMount.current = true
+      return
+    }
+    run(applied || prompt || DEFAULT_PROMPT)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [model])
 
   useEffect(() => {
@@ -284,7 +293,7 @@ export default function App() {
               <ResidualView traj={traj} focus={focus} error={error} />
             </Figure>
             <Figure name="04-probes">
-              <ProbeView />
+              <ProbeView model={model} />
             </Figure>
           </div>
 
@@ -298,7 +307,7 @@ export default function App() {
             />
           </Figure>
           <Figure name="06-neurons">
-            <NeuronView />
+            <NeuronView model={model} nLayers={health ? health.n_layers : 12} />
           </Figure>
 
           <ActHeader act={ACTS[2]} />
@@ -308,7 +317,7 @@ export default function App() {
 
           <ActHeader act={ACTS[3]} />
           <Figure name="08-patching">
-            <PatchingView />
+            <PatchingView model={model} />
           </Figure>
           <Figure name="09-attribution">
             <AttributionView model={model} />

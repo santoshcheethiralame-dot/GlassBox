@@ -12,20 +12,22 @@ function stepPoints(acc: number[], px: (i: number) => number, py: (v: number) =>
   return pts.join(' ')
 }
 
-export function ProbeView() {
+export function ProbeView({ model }: { model: string }) {
   const [res, setRes] = useState<ProbeResponse | null>(null)
   const [off, setOff] = useState<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let live = true
-    runProbes([])
+    setRes(null)
+    setError(null)
+    runProbes([], model)
       .then((r) => live && setRes(r))
       .catch((e) => live && setError(e instanceof Error ? e.message : String(e)))
     return () => {
       live = false
     }
-  }, [])
+  }, [model])
 
   const toggle = (k: string) => {
     const next = new Set(off)

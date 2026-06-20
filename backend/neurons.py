@@ -5,17 +5,18 @@ import torch
 from fastapi import HTTPException
 
 from corpus import CORPUS
-from model import get_model, synchronized
+from model import DEFAULT_MODEL, get_model, synchronized
 
-_tokens = None
-_cache_layer = None
+# tokenized corpus is per-model (different tokenizers); the activation cache is a
+# single slot keyed by (model_key, layer) so a model switch never serves stale acts.
+_tokens: dict[str, tuple] = {}
+_cache_key = None
 _cache = None
 
 
-def _ensure_tokens():
-    global _tokens
-    if _tokens is None:
-        model = get_model()
+def _ensure_tokens(model_key: str = DEFAULT_MODEL):
+    if model_key not in _tokens:
+        model = get_model(model_key)
         str_tokens = [model.to_str_tokens(s) for s in CORPUS]
         rows = [model.to_tokens(s)[0] for s in CORPUS]
         lengths = [int(r.shape[0]) for r in rows]
@@ -26,20 +27,20 @@ def _ensure_tokens():
         batch = torch.full((len(rows), max_len), pad, dtype=torch.long)
         for i, r in enumerate(rows):
             batch[i, : r.shape[0]] = r
-        _tokens = (str_tokens, batch, lengths)
-    return _tokens
+        _tokens[model_key] = (str_tokens, batch, lengths)
+    return _tokens[model_key]
 
 
 @synchronized
-def _layer_acts(layer):
-    global _cache_layer, _cache
-    if _cache_layer == layer:
+def _layer_acts(layer, model_key: str = DEFAULT_MODEL):
+    global _cache_key, _cache
+    if _cache_key == (model_key, layer):
         return _cache
-    model = get_model()
-    str_tokens, batch, lengths = _ensure_tokens()
+    model = get_model(model_key)
+    str_tokens, batch, lengths = _ensure_tokens(model_key)
     name = f"blocks.{layer}.mlp.hook_post"
     _, cache = model.run_with_cache(batch, names_filter=lambda n: n == name, return_type=None)
-    _cache_layer = layer
+    _cache_key = (model_key, layer)
     _cache = {"acts": cache[name].float().cpu().numpy(), "lengths": lengths, "str_tokens": str_tokens}
     return _cache
 
@@ -77,11 +78,11 @@ def _top_contexts(c, index, top_k, distinct=True):
     return res
 
 
-def scan_layer(layer, n_neurons=12):
-    model = get_model()
+def scan_layer(layer, n_neurons=12, model_key: str = DEFAULT_MODEL):
+    model = get_model(model_key)
     if layer < 0 or layer >= model.cfg.n_layers:
         raise HTTPException(status_code=400, detail=f"layer must be 0..{model.cfg.n_layers - 1}")
-    c = _layer_acts(layer)
+    c = _layer_acts(layer, model_key=model_key)
     acts = c["acts"]
     lengths = c["lengths"]
     n_seq, max_len, d_mlp = acts.shape
@@ -106,13 +107,13 @@ def scan_layer(layer, n_neurons=12):
     return {"layer": layer, "d_mlp": int(d_mlp), "n_sentences": n_seq, "neurons": neurons}
 
 
-def neuron_detail(layer, index):
-    model = get_model()
+def neuron_detail(layer, index, model_key: str = DEFAULT_MODEL):
+    model = get_model(model_key)
     if layer < 0 or layer >= model.cfg.n_layers:
         raise HTTPException(status_code=400, detail=f"layer must be 0..{model.cfg.n_layers - 1}")
     if index < 0 or index >= model.cfg.d_mlp:
         raise HTTPException(status_code=400, detail=f"neuron index must be 0..{model.cfg.d_mlp - 1}")
-    c = _layer_acts(layer)
+    c = _layer_acts(layer, model_key=model_key)
     acts = c["acts"]
     lengths = c["lengths"]
     allv = np.concatenate([acts[i, 1:length, index] for i, length in enumerate(lengths)])
