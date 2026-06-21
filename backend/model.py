@@ -65,14 +65,16 @@ def get_model(key: str = DEFAULT_MODEL) -> HookedTransformer:
                 if spec.get("low_mem"):
                     from transformers import AutoModelForCausalLM
 
-                    hf_kwargs = dict(torch_dtype=spec["dtype"], low_cpu_mem_usage=True)
+                    hf = AutoModelForCausalLM.from_pretrained(
+                        spec["tl_name"], torch_dtype=spec["dtype"], low_cpu_mem_usage=True
+                    )
                     if torch.cuda.is_available():
-                        # Load the HF weights straight into VRAM. Converting them to a
-                        # HookedTransformer otherwise spikes CPU RAM enough to get the
-                        # process OOM-killed on a ~13 GB Colab T4; keeping them on the GPU
-                        # the whole way keeps the host-RAM peak small.
-                        hf_kwargs["device_map"] = "cuda"
-                    hf = AutoModelForCausalLM.from_pretrained(spec["tl_name"], **hf_kwargs)
+                        # Move the weights onto the GPU before the HookedTransformer
+                        # conversion. TL reads the HF state dict to build its own copy;
+                        # doing that from a GPU-resident model keeps the host-RAM peak to
+                        # ~one copy instead of OOM-killing a ~13 GB Colab T4. (Plain .to,
+                        # not device_map, so there are no accelerate hooks for TL to trip on.)
+                        hf = hf.to("cuda")
                     model = HookedTransformer.from_pretrained(
                         spec["tl_name"], hf_model=hf, device=spec["device"], **opts
                     )
