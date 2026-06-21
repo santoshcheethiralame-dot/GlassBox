@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import threading
 
 import torch
@@ -63,17 +64,28 @@ def get_model(key: str = DEFAULT_MODEL) -> HookedTransformer:
                 if spec["dtype"] is not None:
                     opts["dtype"] = spec["dtype"]
                 if spec.get("no_processing"):
-                    # Let TransformerLens load + place the weights itself. It streams from
-                    # safetensors (memory-mapped, no second full host copy) and frees its
-                    # internal HF model before allocating params — so host-RAM peak stays
-                    # near one copy instead of the ~3 copies (hf + state dict + params) that
-                    # OOM-kill a free 12 GB Colab T4 when an external hf_model is passed.
-                    # no_processing skips weight folding/centering, which is what spikes RAM;
-                    # fold_ln is mathematically equivalent, so the residual stream (and thus
-                    # SAE features / the experiment) is unchanged.
-                    model = HookedTransformer.from_pretrained_no_processing(
-                        spec["tl_name"], device=spec["device"], dtype=spec["dtype"]
+                    from transformers import AutoModelForCausalLM
+
+                    # device_map="cuda" streams the HF weights straight into VRAM, so the CPU
+                    # never holds that ~5 GB copy. TransformerLens then builds its own
+                    # (untied-embedding, ~7-8 GB) params on the CPU before moving them to the
+                    # GPU — that alone is near a free T4's 12 GB limit, so keeping the HF copy
+                    # off the host is what makes the load fit. no_processing skips weight
+                    # folding/centering (the other RAM spike); fold_ln is mathematically
+                    # equivalent, so the residual stream / SAE features / experiment are
+                    # unchanged.
+                    hf = AutoModelForCausalLM.from_pretrained(
+                        spec["tl_name"], dtype=spec["dtype"], device_map="cuda"
                     )
+                    try:
+                        model = HookedTransformer.from_pretrained_no_processing(
+                            spec["tl_name"], hf_model=hf, device=spec["device"], dtype=spec["dtype"]
+                        )
+                    finally:
+                        del hf
+                        gc.collect()
+                        if torch.cuda.is_available():
+                            torch.cuda.empty_cache()
                 else:
                     model = HookedTransformer.from_pretrained(
                         spec["tl_name"], device=spec["device"], **opts
