@@ -8,6 +8,7 @@ RUN npm run build
 FROM python:3.12-slim AS app
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
+    GLASSBOX_NO_EXTERNAL=1 \
     HF_HOME=/home/user/.cache/huggingface
 WORKDIR /app
 COPY backend/requirements.txt ./

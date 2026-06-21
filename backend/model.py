@@ -66,12 +66,6 @@ def get_model(key: str = DEFAULT_MODEL) -> HookedTransformer:
                 if spec.get("no_processing"):
                     from transformers import AutoModelForCausalLM
 
-                    # Load the HF weights on the CPU (low_cpu_mem_usage keeps the peak down;
-                    # the host has the headroom — Kaggle ~29 GB), then let TransformerLens
-                    # build and move the final model to the GPU. Do NOT use device_map="cuda":
-                    # that pins TL's fp32 weight-processing onto a single 15 GB T4 and
-                    # CUDA-OOMs even on Kaggle. no_processing matches what Gemma Scope SAEs
-                    # expect and skips the folding RAM spike; it's residual-stream-equivalent.
                     hf = AutoModelForCausalLM.from_pretrained(
                         spec["tl_name"], dtype=spec["dtype"], low_cpu_mem_usage=True
                     )

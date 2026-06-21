@@ -10,6 +10,8 @@ from fastapi import HTTPException
 
 from model import get_model, synchronized
 
+_NO_EXTERNAL = os.environ.get("GLASSBOX_NO_EXTERNAL") == "1"
+
 SAE_SPECS = {
     "gpt2": {
         "release": "gpt2-small-res-jb",
@@ -110,6 +112,9 @@ def label(model_key: str, layer: int, index: int):
     cache_key = (spec["np_model"], source, int(index))
     if cache_key in _labels:
         return _labels[cache_key]
+    if _NO_EXTERNAL:
+        _labels[cache_key] = None
+        return None
     url = f"https://www.neuronpedia.org/api/feature/{spec['np_model']}/{source}/{index}"
     text = None
     try:

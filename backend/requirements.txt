@@ -1,8 +1,8 @@
 fastapi
 uvicorn[standard]
 torch
-transformer_lens
-sae_lens
+transformer_lens==3.3.0
+sae_lens==6.44.2
 accelerate
 requests
 numpy
