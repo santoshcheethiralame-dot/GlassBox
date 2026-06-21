@@ -11,6 +11,10 @@ short_description: "GPT-2 internals: SAE features, interventions, attribution"
 
 # GlassBox
 
+**[▶ Try it live — GPT-2 in your browser, no signup](https://numero00-glassbox-interp.hf.space)**
+
+<!-- hero shot goes here: ![GlassBox](docs/glassbox.png) -->
+
 A browser-based microscope for transformer language models. Type a prompt and
 watch the model think — attention, the residual stream, what each layer encodes —
 then *intervene*: decode the residual stream into interpretable features, knock
@@ -80,6 +84,13 @@ experiment that ties the rest together.
 
 ## A few things it surfaces
 
+- On **Gemma-2-2B** the hallucination batch leans hard on memory — it follows
+  only one of six false contexts, confabulating the rest. For `The Brandenburg
+  Gate is in [false city]`, ablating a single SAE feature ("names of political
+  parties & significant events") moves the grounded−memorised logit-diff from
+  **−9.2 to −4.4 (+4.8)** — roughly halving the model's pull toward the memorised
+  answer. One interpretable unit, one measurable lever on a confabulation. (GPT-2,
+  by contrast, *follows* five of six of the same false contexts.)
 - For `The capital of France is`, patching pins the answer to the **` France`
   token at layer 0**, which then routes to the final position in the upper
   layers — the logit difference swings from +1.89 (clean) to −2.81 (corrupted).
