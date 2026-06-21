@@ -24,6 +24,7 @@ MODELS = {
             "center_unembed": False,
         },
         "low_mem": True,
+        "no_processing": True,
         "requires_gpu": True,
     },
 }
@@ -75,9 +76,18 @@ def get_model(key: str = DEFAULT_MODEL) -> HookedTransformer:
                         # ~one copy instead of OOM-killing a ~13 GB Colab T4. (Plain .to,
                         # not device_map, so there are no accelerate hooks for TL to trip on.)
                         hf = hf.to("cuda")
-                    model = HookedTransformer.from_pretrained(
-                        spec["tl_name"], hf_model=hf, device=spec["device"], **opts
-                    )
+                    if spec.get("no_processing"):
+                        # Skip TL's weight folding/centering — that step is what spikes host
+                        # RAM and OOM-kills a free 12 GB Colab T4. fold_ln is mathematically
+                        # equivalent, so the residual stream (and therefore SAE features and
+                        # the experiment) are unchanged; it's just far cheaper to load.
+                        model = HookedTransformer.from_pretrained_no_processing(
+                            spec["tl_name"], hf_model=hf, device=spec["device"], dtype=spec["dtype"]
+                        )
+                    else:
+                        model = HookedTransformer.from_pretrained(
+                            spec["tl_name"], hf_model=hf, device=spec["device"], **opts
+                        )
                     del hf
                     gc.collect()
                     if torch.cuda.is_available():
