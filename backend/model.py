@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import gc
 import threading
 
 import torch
@@ -63,35 +62,18 @@ def get_model(key: str = DEFAULT_MODEL) -> HookedTransformer:
                 opts = dict(spec["kwargs"])
                 if spec["dtype"] is not None:
                     opts["dtype"] = spec["dtype"]
-                if spec.get("low_mem"):
-                    from transformers import AutoModelForCausalLM
-
-                    hf = None
-                    try:
-                        hf = AutoModelForCausalLM.from_pretrained(
-                            spec["tl_name"], torch_dtype=spec["dtype"], low_cpu_mem_usage=True
-                        )
-                        if spec.get("no_processing"):
-                            # Skip TL's weight folding/centering — that step is the host-RAM
-                            # spike that OOM-kills a free 12 GB Colab T4. fold_ln is
-                            # mathematically equivalent, so the residual stream (and therefore
-                            # SAE features and the experiment) is unchanged. Let TL stream the
-                            # weights onto the GPU itself (device=...) rather than bulk-moving
-                            # the HF model with .to(cuda), which can CUDA-OOM on a busy card.
-                            model = HookedTransformer.from_pretrained_no_processing(
-                                spec["tl_name"], hf_model=hf, device=spec["device"], dtype=spec["dtype"]
-                            )
-                        else:
-                            model = HookedTransformer.from_pretrained(
-                                spec["tl_name"], hf_model=hf, device=spec["device"], **opts
-                            )
-                    finally:
-                        # free the temporary HF copy even if the load fails, so a retry
-                        # doesn't inherit leaked host/GPU memory
-                        del hf
-                        gc.collect()
-                        if torch.cuda.is_available():
-                            torch.cuda.empty_cache()
+                if spec.get("no_processing"):
+                    # Let TransformerLens load + place the weights itself. It streams from
+                    # safetensors (memory-mapped, no second full host copy) and frees its
+                    # internal HF model before allocating params — so host-RAM peak stays
+                    # near one copy instead of the ~3 copies (hf + state dict + params) that
+                    # OOM-kill a free 12 GB Colab T4 when an external hf_model is passed.
+                    # no_processing skips weight folding/centering, which is what spikes RAM;
+                    # fold_ln is mathematically equivalent, so the residual stream (and thus
+                    # SAE features / the experiment) is unchanged.
+                    model = HookedTransformer.from_pretrained_no_processing(
+                        spec["tl_name"], device=spec["device"], dtype=spec["dtype"]
+                    )
                 else:
                     model = HookedTransformer.from_pretrained(
                         spec["tl_name"], device=spec["device"], **opts
