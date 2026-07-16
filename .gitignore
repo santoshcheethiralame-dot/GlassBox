@@ -14,3 +14,6 @@ data/cache/
 *.log
 .DS_Store
 Thumbs.db
+
+# private study notes — never commit
+notes/
